@@ -41,21 +41,33 @@ import {
 /* ════════════════════════════════════════════════════════════════
    PALETTE
    ════════════════════════════════════════════════════════════════ */
+// Light "cream" theme drawn from the Mziki brand palette
+// (cream #F8F6F5, dark olive #292D20, sage, warm gold)
 const C = {
-  bg: '#1C1F1A',
-  sidebar: '#242720',
-  surface: '#2E3129',
-  surfaceHi: '#363A30',
-  border: 'rgba(255,255,255,0.07)',
-  borderHi: 'rgba(255,255,255,0.12)',
-  accent: '#7FA095',
-  gold: '#C8A96E',
-  critical: '#C0634A',
-  success: '#6B9E6E',
-  amber: '#D9A85C',
-  text: '#F0EBE0',
-  text2: '#9A9485',
-  text3: '#5C574F',
+  bg: '#F8F6F5', // Mziki brand cream — page background
+  sidebar: '#FFFFFF',
+  surface: '#FFFFFF', // cards float on the cream canvas
+  surfaceHi: '#F4F1EA',
+  inset: '#F4F1EA', // warm cream inset for sub-cards / fields
+  border: 'rgba(41,45,32,0.10)',
+  borderHi: 'rgba(41,45,32,0.16)',
+  hover: 'rgba(41,45,32,0.045)',
+  stripe: 'rgba(41,45,32,0.022)',
+  chip: 'rgba(41,45,32,0.06)',
+  cardShadow: '0 1px 2px rgba(41,45,32,0.05), 0 6px 22px rgba(41,45,32,0.06)',
+  accent: '#5E8576', // sage (deepened for contrast on white)
+  accentSoft: '#7FA095',
+  gold: '#A07C1F', // warm brand gold
+  critical: '#B24A33', // terracotta
+  success: '#4E7B52', // bush green
+  amber: '#B07A28', // monitoring amber
+  team: '#3F6E97', // field-team blue
+  text: '#292D20', // Mziki dark olive — primary text
+  text2: '#5F5A4E', // warm taupe — secondary
+  text3: '#8C8678', // muted — tertiary / labels
+  // Light-on-dark tokens for the dark satellite map overlay:
+  mapText: '#EDE8DC',
+  mapText2: '#B0AA9C',
 }
 
 const healthColor = (v) => (v >= 85 ? C.success : v >= 70 ? C.amber : C.critical)
@@ -198,7 +210,7 @@ const INCIDENTS = [
 const Card = ({ className = '', children, ...rest }) => (
   <div
     className={`rounded-[10px] ${className}`}
-    style={{ background: C.surface, border: `1px solid ${C.border}` }}
+    style={{ background: C.surface, border: `1px solid ${C.border}`, boxShadow: C.cardShadow }}
     {...rest}
   >
     {children}
@@ -246,7 +258,7 @@ function Sidebar({ active, setActive }) {
             <PawPrint size={17} color="#1C1F1A" strokeWidth={2.4} />
           </div>
           <div className="leading-none">
-            <div className="text-[16px] font-semibold tracking-[0.14em]" style={{ color: C.text }}>
+            <div className="font-display text-[16px] font-bold tracking-[0.14em]" style={{ color: C.text }}>
               MZIKI
             </div>
             <div className="text-[10px] mt-1 label-caps" style={{ color: C.accent, letterSpacing: '0.16em' }}>
@@ -279,7 +291,7 @@ function Sidebar({ active, setActive }) {
                 background: on ? 'rgba(127,160,149,0.12)' : 'transparent',
                 boxShadow: on ? `inset 2px 0 0 ${C.accent}` : 'none',
               }}
-              onMouseEnter={(e) => { if (!on) e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
+              onMouseEnter={(e) => { if (!on) e.currentTarget.style.background = C.hover }}
               onMouseLeave={(e) => { if (!on) e.currentTarget.style.background = 'transparent' }}
             >
               <Icon size={17} color={on ? C.accent : C.text2} strokeWidth={2} />
@@ -293,10 +305,10 @@ function Sidebar({ active, setActive }) {
 
       {/* Weather widget */}
       <div className="px-3">
-        <div className="rounded-lg p-3" style={{ background: 'rgba(0,0,0,0.18)', border: `1px solid ${C.border}` }}>
+        <div className="rounded-lg p-3" style={{ background: C.inset, border: `1px solid ${C.border}` }}>
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-[22px] font-semibold tnum leading-none" style={{ color: C.text }}>22°C</div>
+              <div className="font-display text-[22px] font-bold tnum leading-none" style={{ color: C.text }}>22°C</div>
               <div className="text-[10px] mt-1.5" style={{ color: C.text3 }}>Feels like 19° · clear</div>
             </div>
             <Cloud size={26} color={C.gold} strokeWidth={1.6} />
@@ -332,10 +344,10 @@ function TopBar() {
   return (
     <header
       className="sticky top-0 z-10 flex items-center justify-between gap-6 px-7 h-[64px]"
-      style={{ background: 'rgba(28,31,26,0.86)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${C.border}` }}
+      style={{ background: 'rgba(248,246,245,0.85)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${C.border}` }}
     >
       <div className="min-w-0">
-        <h1 className="text-[19px] font-medium tracking-[-0.01em] leading-none" style={{ color: C.text }}>
+        <h1 className="font-display text-[19px] font-bold tracking-[-0.01em] leading-none" style={{ color: C.text }}>
           Reserve Overview
         </h1>
         <p className="text-[11.5px] mt-1.5" style={{ color: C.text2 }}>
@@ -346,12 +358,12 @@ function TopBar() {
       <div className="flex-1 max-w-[420px] hidden md:block">
         <div
           className="flex items-center gap-2.5 rounded-lg px-3.5 h-9"
-          style={{ background: 'rgba(0,0,0,0.22)', border: `1px solid ${C.border}` }}
+          style={{ background: C.inset, border: `1px solid ${C.border}` }}
         >
           <Search size={15} color={C.text3} />
           <input
             placeholder="Search animals, sectors, incidents…"
-            className="bg-transparent outline-none text-[12.5px] w-full placeholder:text-[#5C574F]"
+            className="bg-transparent outline-none text-[12.5px] w-full placeholder:text-[#8C8678]"
             style={{ color: C.text }}
           />
           <kbd className="text-[10px] px-1.5 py-0.5 rounded" style={{ color: C.text3, border: `1px solid ${C.border}` }}>⌘K</kbd>
@@ -364,7 +376,7 @@ function TopBar() {
             key={i}
             className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors duration-150"
             style={{ border: `1px solid ${C.border}` }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+            onMouseEnter={(e) => (e.currentTarget.style.background = C.hover)}
             onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
           >
             <Icon size={16} color={C.text2} />
@@ -409,7 +421,7 @@ function KpiStrip() {
           <div
             key={k.label}
             className="rounded-[10px] p-4 transition-transform duration-150 cursor-default"
-            style={{ background: C.surface, border: `1px solid ${C.border}` }}
+            style={{ background: C.surface, border: `1px solid ${C.border}`, boxShadow: C.cardShadow }}
             onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           >
@@ -424,7 +436,7 @@ function KpiStrip() {
                 <Icon size={16} color={C.accent} strokeWidth={2} />
               </div>
             </div>
-            <div className="text-[28px] font-semibold tnum mt-2.5 leading-none" style={{ color: C.text }}>
+            <div className="font-display text-[28px] font-bold tnum mt-2.5 leading-none" style={{ color: C.text }}>
               {k.value}
             </div>
             <div className="flex items-center gap-1 mt-2">
@@ -550,9 +562,9 @@ function ReserveMap() {
         {/* grid toggle */}
         <button
           className="absolute top-3 right-3 flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[10.5px] label-caps transition-colors"
-          style={{ background: 'rgba(28,31,26,0.7)', border: `1px solid ${C.border}`, color: C.text2, letterSpacing: '0.06em' }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = C.text)}
-          onMouseLeave={(e) => (e.currentTarget.style.color = C.text2)}
+          style={{ background: 'rgba(28,31,26,0.7)', border: `1px solid rgba(255,255,255,0.12)`, color: C.mapText2, letterSpacing: '0.06em' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = C.mapText)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = C.mapText2)}
         >
           <Grid3x3 size={12} /> Sector grid
         </button>
@@ -571,16 +583,16 @@ function ReserveMap() {
               top: `${hover.y}%`,
               transform: `translate(-50%, calc(-100% - 14px))`,
               background: 'rgba(20,23,18,0.95)',
-              border: `1px solid ${C.borderHi}`,
+              border: `1px solid rgba(255,255,255,0.14)`,
               boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
               minWidth: 180,
             }}
           >
             <div className="flex items-center gap-2">
               <Dot color={MARKER_STYLE[hover.type]} />
-              <span className="text-[12px] font-medium" style={{ color: C.text }}>{hover.species}</span>
+              <span className="text-[12px] font-medium" style={{ color: C.mapText }}>{hover.species}</span>
             </div>
-            <div className="text-[10.5px] mt-1 tnum" style={{ color: C.text2 }}>{hover.tag}</div>
+            <div className="text-[10.5px] mt-1 tnum" style={{ color: C.mapText2 }}>{hover.tag}</div>
             <div className="text-[10px] mt-0.5 label-caps" style={{ color: MARKER_STYLE[hover.type], letterSpacing: '0.05em' }}>{hover.status}</div>
           </div>
         )}
@@ -588,14 +600,14 @@ function ReserveMap() {
         {/* legend */}
         <div
           className="absolute bottom-3 left-3 rounded-lg px-3 py-2.5"
-          style={{ background: 'rgba(20,23,18,0.78)', border: `1px solid ${C.border}`, backdropFilter: 'blur(4px)' }}
+          style={{ background: 'rgba(20,23,18,0.78)', border: `1px solid rgba(255,255,255,0.10)`, backdropFilter: 'blur(4px)' }}
         >
-          <div className="text-[9px] mb-1.5 label-caps" style={{ color: C.text3, letterSpacing: '0.1em' }}>Legend</div>
+          <div className="text-[9px] mb-1.5 label-caps" style={{ color: C.mapText2, letterSpacing: '0.1em' }}>Legend</div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
             {legend.map((l) => (
               <div key={l.t} className="flex items-center gap-2">
                 <Dot color={l.c} size={6} />
-                <span className="text-[10px]" style={{ color: C.text2 }}>{l.t}</span>
+                <span className="text-[10px]" style={{ color: C.mapText2 }}>{l.t}</span>
               </div>
             ))}
           </div>
@@ -628,7 +640,7 @@ function ActivityFeed() {
           <div
             key={i}
             className={`flex gap-3 px-4 py-3 ${i === 0 ? 'feed-in' : ''}`}
-            style={{ background: i % 2 ? 'rgba(255,255,255,0.015)' : 'transparent', borderBottom: `1px solid ${C.border}` }}
+            style={{ background: i % 2 ? C.stripe : 'transparent', borderBottom: `1px solid ${C.border}` }}
           >
             <div className="flex flex-col items-center pt-0.5">
               <Dot color={a.dot} />
@@ -636,7 +648,7 @@ function ActivityFeed() {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-semibold tnum" style={{ color: C.gold }}>{a.time} AM</span>
-                <span className="text-[9px] px-1.5 py-0.5 rounded-full label-caps tnum" style={{ color: C.text2, background: 'rgba(255,255,255,0.05)', letterSpacing: '0.04em' }}>{a.tag}</span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full label-caps tnum" style={{ color: C.text2, background: C.chip, letterSpacing: '0.04em' }}>{a.tag}</span>
               </div>
               <p className="text-[12px] mt-1 leading-snug" style={{ color: C.text }}>{a.text}</p>
             </div>
@@ -654,7 +666,7 @@ function HealthTooltip({ active, payload }) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload
   return (
-    <div className="rounded-lg px-2.5 py-1.5" style={{ background: 'rgba(20,23,18,0.95)', border: `1px solid ${C.borderHi}` }}>
+    <div className="rounded-lg px-2.5 py-1.5" style={{ background: '#FFFFFF', border: `1px solid ${C.borderHi}`, boxShadow: '0 6px 18px rgba(41,45,32,0.12)' }}>
       <div className="text-[11px] font-medium" style={{ color: C.text }}>{d.species}</div>
       <div className="text-[11px] tnum" style={{ color: healthColor(d.value) }}>{d.value}% health index</div>
     </div>
@@ -677,8 +689,8 @@ function SpeciesHealth() {
               axisLine={false}
               tickLine={false}
             />
-            <Tooltip cursor={{ fill: 'rgba(255,255,255,0.03)' }} content={<HealthTooltip />} />
-            <Bar dataKey="value" radius={[3, 3, 3, 3]} barSize={13} background={{ fill: 'rgba(255,255,255,0.04)', radius: 3 }}>
+            <Tooltip cursor={{ fill: 'rgba(41,45,32,0.04)' }} content={<HealthTooltip />} />
+            <Bar dataKey="value" radius={[3, 3, 3, 3]} barSize={13} background={{ fill: 'rgba(41,45,32,0.06)', radius: 3 }}>
               {HEALTH.map((d, i) => (
                 <Cell key={i} fill={healthColor(d.value)} />
               ))}
@@ -713,7 +725,7 @@ function FieldTeams() {
           <div
             key={t.name}
             className="rounded-lg pl-3 pr-2.5 py-2.5 flex items-center justify-between transition-colors"
-            style={{ background: 'rgba(0,0,0,0.16)', borderLeft: `2.5px solid ${t.color}`, border: `1px solid ${C.border}`, borderLeftWidth: '2.5px', borderLeftColor: t.color }}
+            style={{ background: C.inset, borderLeft: `2.5px solid ${t.color}`, border: `1px solid ${C.border}`, borderLeftWidth: '2.5px', borderLeftColor: t.color }}
           >
             <div className="min-w-0">
               <div className="text-[12.5px] font-medium" style={{ color: C.text }}>{t.name}</div>
@@ -738,12 +750,12 @@ function FieldTeams() {
    ════════════════════════════════════════════════════════════════ */
 function MiniStat({ icon: Icon, label, value, sub }) {
   return (
-    <div className="rounded-lg p-2.5" style={{ background: 'rgba(0,0,0,0.16)', border: `1px solid ${C.border}` }}>
+    <div className="rounded-lg p-2.5" style={{ background: C.inset, border: `1px solid ${C.border}` }}>
       <div className="flex items-center gap-1.5">
         <Icon size={12} color={C.accent} />
         <span className="text-[9.5px] label-caps" style={{ color: C.text2, letterSpacing: '0.07em' }}>{label}</span>
       </div>
-      <div className="text-[17px] font-semibold tnum mt-1.5 leading-none" style={{ color: C.text }}>{value}</div>
+      <div className="font-display text-[17px] font-bold tnum mt-1.5 leading-none" style={{ color: C.text }}>{value}</div>
       {sub && <div className="text-[9.5px] mt-1" style={{ color: C.text3 }}>{sub}</div>}
     </div>
   )
@@ -769,9 +781,10 @@ function Environmental() {
             <LineChart data={RAINFALL} margin={{ top: 6, right: 4, bottom: 0, left: 4 }}>
               <XAxis dataKey="day" tick={{ fill: C.text3, fontSize: 9 }} axisLine={false} tickLine={false} interval={0} />
               <Tooltip
-                cursor={{ stroke: 'rgba(255,255,255,0.08)' }}
-                contentStyle={{ background: 'rgba(20,23,18,0.95)', border: `1px solid ${C.borderHi}`, borderRadius: 8, fontSize: 11 }}
+                cursor={{ stroke: 'rgba(41,45,32,0.12)' }}
+                contentStyle={{ background: '#FFFFFF', border: `1px solid ${C.borderHi}`, borderRadius: 8, fontSize: 11, boxShadow: '0 6px 18px rgba(41,45,32,0.12)' }}
                 labelStyle={{ color: C.text2 }}
+                itemStyle={{ color: C.text }}
                 formatter={(v) => [`${v} mm`, 'Rainfall']}
               />
               <Line type="monotone" dataKey="mm" stroke={C.accent} strokeWidth={1.5} dot={{ r: 2, fill: C.accent }} activeDot={{ r: 3.5 }} />
@@ -786,7 +799,7 @@ function Environmental() {
           <span className="text-[10px] label-caps" style={{ color: C.text2, letterSpacing: '0.07em' }}>Bush Density Index</span>
           <span className="text-[11px] font-semibold tnum" style={{ color: C.gold }}>72 / 100</span>
         </div>
-        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.3)' }}>
+        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(41,45,32,0.08)' }}>
           <div
             className="h-full rounded-full"
             style={{ width: '72%', background: 'linear-gradient(90deg, #C8A96E 0%, #6B9E6E 100%)' }}
@@ -840,7 +853,7 @@ function SightingsLog() {
                 key={i}
                 className="transition-colors"
                 style={{ borderBottom: `1px solid ${C.border}` }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.025)')}
+                onMouseEnter={(e) => (e.currentTarget.style.background = C.hover)}
                 onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
               >
                 <td className="px-4 py-2.5 text-[11.5px] tnum" style={{ color: C.gold }}>{s.time}</td>
@@ -870,7 +883,7 @@ function IncidentTracker() {
           <div
             key={i}
             className="rounded-lg p-3.5 transition-transform duration-150"
-            style={{ background: 'rgba(0,0,0,0.16)', border: `1px solid ${C.border}`, borderLeft: `3px solid ${inc.color}` }}
+            style={{ background: C.inset, border: `1px solid ${C.border}`, borderLeft: `3px solid ${inc.color}` }}
             onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
           >
