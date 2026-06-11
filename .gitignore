@@ -22,3 +22,6 @@ npm-debug.log*
 # Inspiration images (not part of the app)
 inspo pic.jpg
 inspo pic2.jpg
+
+# Local Netlify folder
+.netlify
