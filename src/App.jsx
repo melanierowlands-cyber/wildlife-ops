@@ -37,6 +37,7 @@ import leopardPhoto from '../assets/leopard.jpg'
 import elephantPhoto from '../assets/elephant.png'
 import rhinoPhoto from '../assets/rhino.jpeg'
 import buffaloPhoto from '../assets/buffalo.jpeg'
+import MzikiPrototype from './prototype/MzikiPrototype'
 
 /* Real animal photography keyed by roster id (Wild Dog has none → emoji). */
 const PHOTO = {
@@ -1311,7 +1312,16 @@ function DispatchView() {
    ════════════════════════════════════════════════════════════════ */
 export default function App() {
   const [active, setActive] = useState('overview')
+  const [proto, setProto] = useState(() => typeof window !== 'undefined' && window.location.hash === '#proto')
+  useEffect(() => {
+    const onHash = () => setProto(window.location.hash === '#proto')
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
   const page = PAGES[active]
+
+  if (proto) return <MzikiPrototype onExit={() => { window.location.hash = '' }} />
+
   return (
     <div className="min-h-screen" style={{ background: C.paper, color: C.cream }}>
       <Sidebar active={active} setActive={setActive} />
@@ -1328,6 +1338,15 @@ export default function App() {
           </footer>
         </main>
       </div>
+
+      {/* entry to the pixel-perfect Figma prototype */}
+      <button
+        onClick={() => { window.location.hash = 'proto' }}
+        className="fixed right-4 bottom-4 z-50 cursor-pointer rounded-full font-medium"
+        style={{ padding: '9px 14px', fontSize: 13, color: C.accentDeep, background: C.gold, boxShadow: '0 8px 24px -8px rgba(0,0,0,0.45)' }}
+      >
+        Pixel prototype →
+      </button>
     </div>
   )
 }
