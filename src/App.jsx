@@ -264,9 +264,9 @@ const INCIDENTS = [
 const Card = ({ className = '', hover = false, style, children, ...rest }) => (
   <div
     className={`rounded-xl ${className}`}
-    style={{ background: C.surface, border: `1px solid ${C.line}`, boxShadow: C.shadowCard, transition: 'box-shadow .25s ease, border-color .25s ease', ...style }}
-    onMouseEnter={hover ? (e) => { e.currentTarget.style.boxShadow = C.shadowMd; e.currentTarget.style.borderColor = C.line2 } : undefined}
-    onMouseLeave={hover ? (e) => { e.currentTarget.style.boxShadow = C.shadowCard; e.currentTarget.style.borderColor = C.line } : undefined}
+    style={{ background: C.surface, border: `1px solid ${C.line}`, boxShadow: C.shadowCard, transition: 'transform .15s cubic-bezier(.22,.61,.36,1), box-shadow .2s ease, border-color .2s ease', ...style }}
+    onMouseEnter={hover ? (e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = C.shadowMd; e.currentTarget.style.borderColor = C.line2 } : undefined}
+    onMouseLeave={hover ? (e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = C.shadowCard; e.currentTarget.style.borderColor = C.line } : undefined}
     {...rest}
   >
     {children}
@@ -308,6 +308,55 @@ const LiveDot = ({ color = C.positive }) => (
     <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: color }} />
   </span>
 )
+
+/* ── Count-up metric value ──────────────────────────────────────────
+   Animates the first numeric run in a value (0 → target) on mount with
+   easeOutCubic. Preserves prefix/suffix & grouping ("91%", "6 / 8",
+   "2,340") and honours prefers-reduced-motion (shows final instantly). */
+const REDUCED_MOTION =
+  typeof window !== 'undefined' &&
+  window.matchMedia &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+function formatNum(n, decimals, grouped) {
+  const fixed = decimals > 0 ? n.toFixed(decimals) : String(Math.round(n))
+  if (!grouped) return fixed
+  const [int, dec] = fixed.split('.')
+  const withCommas = Number(int).toLocaleString('en-US')
+  return dec != null ? `${withCommas}.${dec}` : withCommas
+}
+
+function AnimatedValue({ value, duration = 800 }) {
+  const text = String(value)
+  const match = text.match(/\d[\d,]*\.?\d*/)
+  const raw = match ? match[0] : ''
+  const grouped = raw.includes(',')
+  const decimals = raw.includes('.') ? raw.split('.')[1].length : 0
+  const target = match ? parseFloat(raw.replace(/,/g, '')) : 0
+  const build = (numStr) =>
+    match ? text.slice(0, match.index) + numStr + text.slice(match.index + raw.length) : text
+
+  const [display, setDisplay] = useState(
+    !match || REDUCED_MOTION ? text : build(formatNum(0, decimals, grouped)),
+  )
+
+  useEffect(() => {
+    if (!match || REDUCED_MOTION) { setDisplay(text); return }
+    let frame
+    const start = performance.now()
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration)
+      const eased = 1 - Math.pow(1 - t, 3)
+      setDisplay(build(formatNum(target * eased, decimals, grouped)))
+      if (t < 1) frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text])
+
+  return <span className="tnum">{display}</span>
+}
 
 /* Flat-top acacia — brand mark */
 function AcaciaMark({ size = 19, color = C.surface }) {
@@ -594,7 +643,7 @@ function Metrics() {
           <Card key={k.label} hover className="p-[18px]">
             <Eyebrow className="text-[10px]">{k.label}</Eyebrow>
             <div className="flex items-end justify-between gap-2 mt-3">
-              <div className="font-mono text-[24px] leading-none" style={{ color: C.ink }}>{k.value}</div>
+              <div className="font-mono text-[24px] leading-none" style={{ color: C.ink }}><AnimatedValue value={k.value} /></div>
               <Sparkline data={k.spark} id={i} color={m.color === C.ink3 ? C.ink3 : m.color} />
             </div>
             <div className="flex items-center gap-1.5 mt-3">
@@ -636,7 +685,7 @@ function MapMarker({ m, onHover, active }) {
   return (
     <div className="absolute" style={{ left: `${m.x}%`, top: `${m.y}%`, transform: 'translate(-50%,-50%)' }} onMouseEnter={() => onHover(m)} onMouseLeave={() => onHover(null)}>
       <div className="relative flex items-center justify-center cursor-pointer" style={{ width: 14, height: 14 }}>
-        {(m.type === 'critical' || m.type === 'team') && <span className="pulse-ring absolute rounded-full" style={{ width: 14, height: 14, background: color, opacity: 0.45 }} />}
+        <span className="pulse-ring absolute rounded-full" style={{ width: 14, height: 14, background: color, opacity: m.type === 'critical' ? 0.5 : m.type === 'team' ? 0.42 : m.type === 'monitor' ? 0.3 : 0.2 }} />
         <span className="dot-core relative rounded-full" style={{ width: m.type === 'team' ? 9 : 8, height: m.type === 'team' ? 9 : 8, background: color, border: '1.5px solid rgba(18,22,16,0.55)', boxShadow: active ? `0 0 0 4px ${color}33, 0 0 10px ${color}` : `0 0 8px ${color}aa` }} />
       </div>
     </div>
@@ -990,6 +1039,8 @@ function AnimalActivity({ animal }) {
    ════════════════════════════════════════════════════════════════ */
 function SightingsTable() {
   const cols = ['Time', 'Species', 'Count', 'Location', 'Ranger', 'Notable']
+  const [hoverRow, setHoverRow] = useState(null)
+  const rowActions = [{ Icon: Navigation, t: 'Track on map' }, { Icon: ChevronRight, t: 'Open record' }]
   return (
     <Card className="flex flex-col overflow-hidden">
       <CardHead icon={Compass} title="Sightings Today" right={<span className="font-mono text-[11px]" style={{ color: C.ink3 }}>47 recorded</span>} />
@@ -1000,25 +1051,39 @@ function SightingsTable() {
               {cols.map((c) => (
                 <th key={c} className="caps text-[9.5px] font-semibold px-5 py-2.5 whitespace-nowrap" style={{ color: C.ink3, borderBottom: `1px solid ${C.line}`, background: C.surface2 }}>{c}</th>
               ))}
+              <th className="px-5 py-2.5" style={{ width: 92, borderBottom: `1px solid ${C.line}`, background: C.surface2 }} />
             </tr>
           </thead>
           <tbody>
-            {SIGHTINGS.map((s, i) => (
-              <tr key={i} className="transition-colors" style={{ borderBottom: i < SIGHTINGS.length - 1 ? `1px solid ${C.line}` : 'none' }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = C.hover)} onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>
-                <td className="px-5 py-3 font-mono text-[11.5px]" style={{ color: C.accentDeep }}>{s.time}</td>
-                <td className="px-5 py-3 text-[12.5px] font-medium" style={{ color: C.ink }}>{s.species}</td>
-                <td className="px-5 py-3 font-mono text-[12px]" style={{ color: C.ink2 }}>{s.count}</td>
-                <td className="px-5 py-3 text-[12px]" style={{ color: C.ink2 }}>{s.loc}</td>
-                <td className="px-5 py-3 text-[12px]" style={{ color: C.ink2 }}>{s.ranger}</td>
-                <td className="px-5 py-3 text-[12px]" style={{ color: C.ink2 }}>
-                  <span className="inline-flex items-center gap-1.5">
-                    {s.flag && <Dot color={C.warning} size={5} />}
-                    <span style={{ color: s.flag ? C.ink : C.ink2 }}>{s.note}</span>
-                  </span>
-                </td>
-              </tr>
-            ))}
+            {SIGHTINGS.map((s, i) => {
+              const on = hoverRow === i
+              return (
+                <tr key={i} className="transition-colors" style={{ borderBottom: i < SIGHTINGS.length - 1 ? `1px solid ${C.line}` : 'none', background: on ? C.hover : 'transparent' }}
+                  onMouseEnter={() => setHoverRow(i)} onMouseLeave={() => setHoverRow(null)}>
+                  <td className="px-5 py-3 font-mono text-[11.5px]" style={{ color: C.accentDeep }}>{s.time}</td>
+                  <td className="px-5 py-3 text-[12.5px] font-medium" style={{ color: C.ink }}>{s.species}</td>
+                  <td className="px-5 py-3 font-mono text-[12px]" style={{ color: C.ink2 }}>{s.count}</td>
+                  <td className="px-5 py-3 text-[12px]" style={{ color: C.ink2 }}>{s.loc}</td>
+                  <td className="px-5 py-3 text-[12px]" style={{ color: C.ink2 }}>{s.ranger}</td>
+                  <td className="px-5 py-3 text-[12px]" style={{ color: C.ink2 }}>
+                    <span className="inline-flex items-center gap-1.5">
+                      {s.flag && <Dot color={C.warning} size={5} />}
+                      <span style={{ color: s.flag ? C.ink : C.ink2 }}>{s.note}</span>
+                    </span>
+                  </td>
+                  <td className="px-5 py-3 text-right" style={{ width: 92 }}>
+                    <div className="inline-flex items-center gap-1 justify-end" style={{ opacity: on ? 1 : 0, transform: on ? 'translateX(0)' : 'translateX(6px)', transition: 'opacity .15s ease, transform .15s ease', pointerEvents: on ? 'auto' : 'none' }}>
+                      {rowActions.map(({ Icon, t }, k) => (
+                        <button key={k} title={t} aria-label={t} className="w-7 h-7 rounded-md flex items-center justify-center transition-colors" style={{ border: `1px solid ${C.line2}`, color: C.ink2, background: C.surface }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = C.surface2)} onMouseLeave={(e) => (e.currentTarget.style.background = C.surface)}>
+                          <Icon size={13} strokeWidth={1.75} />
+                        </button>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -1046,7 +1111,7 @@ function DispatchStats({ openCount }) {
               <Icon size={17} color={s.color} strokeWidth={1.9} />
             </div>
             <div className="min-w-0">
-              <div className="font-mono text-[21px] leading-none" style={{ color: C.ink }}>{s.value}</div>
+              <div className="font-mono text-[21px] leading-none" style={{ color: C.ink }}><AnimatedValue value={s.value} /></div>
               <Eyebrow className="block mt-1.5 text-[9.5px]">{s.label}</Eyebrow>
               <div className="text-[10px] mt-0.5 truncate" style={{ color: C.ink4 }}>{s.sub}</div>
             </div>
