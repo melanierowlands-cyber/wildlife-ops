@@ -32,35 +32,69 @@ import {
   AlertTriangle,
   Activity,
 } from 'lucide-react'
+import lionPhoto from '../assets/lion.jpeg'
+import leopardPhoto from '../assets/leopard.jpg'
+import elephantPhoto from '../assets/elephant.png'
+import rhinoPhoto from '../assets/rhino.jpeg'
+import buffaloPhoto from '../assets/buffalo.jpeg'
+
+/* Real animal photography keyed by roster id (Wild Dog has none → emoji). */
+const PHOTO = {
+  'PR-01': lionPhoto,
+  'LP-02': leopardPhoto,
+  'EH-03': elephantPhoto,
+  'SDR-07': rhinoPhoto,
+  'BF-11': buffaloPhoto,
+}
 
 /* ════════════════════════════════════════════════════════════════
    PALETTE — mirrors CSS tokens (see index.css)
    ════════════════════════════════════════════════════════════════ */
 const C = {
-  paper: '#F1EEE7',
-  surface: '#FBFAF6',
-  surface2: '#F4F1EA',
-  sunken: '#E9E5DC',
-  ink: '#24281D',
-  ink2: '#5B5749',
-  ink3: '#8C8678',
-  ink4: '#AAA496',
-  line: 'rgba(36,40,29,0.08)',
-  line2: 'rgba(36,40,29,0.14)',
-  hover: 'rgba(36,40,29,0.04)',
-  accent: '#4F6B5C',
-  accentDeep: '#3A5142',
-  accentTint: 'rgba(79,107,92,0.10)',
+  // ── canvas — deep teal (Mziki) ──────────────────────────────────
+  paper: '#004B42',        // app background / canvas
+  canvasDeep: '#003B34',   // sidebar — deeper teal
+  // ── teal surfaces — LIGHT text sits on these (topbar, stat cards)
+  teal: '#02695D',         // stat / KPI card
+  tealTop: '#05907F',      // topbar
+  tealLine: 'rgba(255,255,255,0.14)',
+  tealLine2: 'rgba(255,255,255,0.22)',
+  // ── cream card surfaces — DARK ink sits on these ────────────────
+  surface: '#FBFAF6',      // primary content card
+  surface2: '#F4F1EA',     // inset
+  sunken: '#E4E4D5',       // sunken / track
+  // ── ink — dark, for cream cards ─────────────────────────────────
+  ink: '#1F2A26',
+  ink2: '#4A544F',
+  ink3: '#7C847D',
+  ink4: '#A6ABA1',
+  // ── cream / light text — for teal surfaces ──────────────────────
+  cream: '#F4F1EA',
+  cream2: 'rgba(244,241,234,0.74)',
+  cream3: 'rgba(244,241,234,0.50)',
+  // ── hairlines on cream ──────────────────────────────────────────
+  line: 'rgba(31,42,38,0.10)',
+  line2: 'rgba(31,42,38,0.16)',
+  hover: 'rgba(31,42,38,0.045)',
+  // ── accent — teal (primary action) + gold (highlight) ───────────
+  accent: '#02695D',
+  accentDeep: '#004B42',
+  accentTint: 'rgba(2,105,93,0.10)',
+  gold: '#D29B00',
+  goldDeep: '#A87C00',
+  goldTint: 'rgba(210,155,0,0.14)',
+  // ── status (Mziki) ──────────────────────────────────────────────
   critical: '#B0492F',
-  warning: '#A9792B',
-  positive: '#5B7A50',
+  warning: '#C0871E',
+  positive: '#5A8021',
   info: '#4C6A88',
-  shadowSm: '0 1px 2px rgba(36,40,29,0.05)',
-  shadowCard: '0 1px 1.5px rgba(36,40,29,0.04), 0 4px 12px -6px rgba(36,40,29,0.07)',
-  shadowMd: '0 10px 30px -12px rgba(36,40,29,0.18)',
-  // dark map tokens
-  mapInk: '#E8E4D8',
-  mapInk2: '#9AA08C',
+  // ── shadows — tuned for the teal canvas ─────────────────────────
+  shadowSm: '0 1px 2px rgba(0,24,20,0.12)',
+  shadowCard: '0 1px 2px rgba(0,24,20,0.10), 0 6px 16px -8px rgba(0,18,15,0.22)',
+  shadowMd: '0 16px 36px -14px rgba(0,18,15,0.45)',
+  // ── dark map tokens ─────────────────────────────────────────────
+  mapInk: '#EEF0E6',
+  mapInk2: '#9FB0A2',
 }
 
 const healthColor = (v) => (v >= 85 ? C.positive : v >= 70 ? C.warning : C.critical)
@@ -261,17 +295,23 @@ const INCIDENTS = [
 /* ════════════════════════════════════════════════════════════════
    PRIMITIVES
    ════════════════════════════════════════════════════════════════ */
-const Card = ({ className = '', hover = false, style, children, ...rest }) => (
-  <div
-    className={`rounded-xl ${className}`}
-    style={{ background: C.surface, border: `1px solid ${C.line}`, boxShadow: C.shadowCard, transition: 'transform .15s cubic-bezier(.22,.61,.36,1), box-shadow .2s ease, border-color .2s ease', ...style }}
-    onMouseEnter={hover ? (e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = C.shadowMd; e.currentTarget.style.borderColor = C.line2 } : undefined}
-    onMouseLeave={hover ? (e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = C.shadowCard; e.currentTarget.style.borderColor = C.line } : undefined}
-    {...rest}
-  >
-    {children}
-  </div>
-)
+const Card = ({ className = '', hover = false, tone = 'cream', style, children, ...rest }) => {
+  const teal = tone === 'teal'
+  const baseBg = teal ? C.teal : C.surface
+  const baseBorder = teal ? C.tealLine : C.line
+  const hoverBorder = teal ? C.tealLine2 : C.line2
+  return (
+    <div
+      className={`rounded-xl ${className}`}
+      style={{ background: baseBg, border: `1px solid ${baseBorder}`, boxShadow: C.shadowCard, transition: 'transform .15s cubic-bezier(.22,.61,.36,1), box-shadow .2s ease, border-color .2s ease', ...style }}
+      onMouseEnter={hover ? (e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = C.shadowMd; e.currentTarget.style.borderColor = hoverBorder } : undefined}
+      onMouseLeave={hover ? (e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = C.shadowCard; e.currentTarget.style.borderColor = baseBorder } : undefined}
+      {...rest}
+    >
+      {children}
+    </div>
+  )
+}
 
 const CardHead = ({ icon: Icon, title, sub, right }) => (
   <div className="flex items-center justify-between gap-3 px-5 h-[52px] shrink-0" style={{ borderBottom: `1px solid ${C.line}` }}>
@@ -302,7 +342,7 @@ const Reveal = ({ delay = 0, className = '', children }) => (
   <div className={`reveal ${className}`} style={{ animationDelay: `${delay}ms` }}>{children}</div>
 )
 
-const LiveDot = ({ color = C.positive }) => (
+const LiveDot = ({ color = C.gold }) => (
   <span className="relative flex h-1.5 w-1.5">
     <span className="pulse-ring absolute inline-flex h-full w-full rounded-full" style={{ background: color }} />
     <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: color }} />
@@ -529,23 +569,23 @@ function SpeciesBars() {
    ════════════════════════════════════════════════════════════════ */
 function Sidebar({ active, setActive }) {
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-[244px] flex flex-col z-20" style={{ background: C.paper, borderRight: `1px solid ${C.line}` }}>
+    <aside className="fixed left-0 top-0 bottom-0 w-[244px] flex flex-col z-20" style={{ background: C.canvasDeep, borderRight: `1px solid ${C.tealLine}` }}>
       {/* Brand */}
       <div className="px-5 pt-6 pb-5">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-[11px] flex items-center justify-center shrink-0" style={{ background: C.accent, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 1px 2px rgba(36,40,29,0.18)' }}>
-            <AcaciaMark size={19} />
+          <div className="w-9 h-9 rounded-[11px] flex items-center justify-center shrink-0" style={{ background: C.gold, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20), 0 1px 2px rgba(0,0,0,0.25)' }}>
+            <AcaciaMark size={19} color={C.accentDeep} />
           </div>
           <div className="leading-none">
-            <div className="font-display text-[17px] font-semibold" style={{ color: C.ink }}>Mziki</div>
-            <div className="font-mono text-[9px] caps mt-1" style={{ color: C.ink3, letterSpacing: '0.2em' }}>Field Ops</div>
+            <div className="font-display text-[17px] font-semibold" style={{ color: C.cream }}>Mziki</div>
+            <div className="font-mono text-[9px] caps mt-1" style={{ color: C.cream3, letterSpacing: '0.2em' }}>Field Ops</div>
           </div>
         </div>
       </div>
 
       {/* Nav */}
       <nav className="px-3 flex-1">
-        <Eyebrow className="block px-3 mb-2 text-[9.5px]">Operations</Eyebrow>
+        <Eyebrow className="block px-3 mb-2 text-[9.5px]" style={{ color: C.cream3 }}>Operations</Eyebrow>
         {NAV.map((item) => {
           const Icon = item.icon
           const on = active === item.id
@@ -554,36 +594,36 @@ function Sidebar({ active, setActive }) {
               key={item.id}
               onClick={() => setActive(item.id)}
               className="relative w-full flex items-center gap-3 pl-3 pr-2 py-2.5 mb-1 rounded-lg text-left"
-              style={{ background: on ? C.surface : 'transparent', boxShadow: on ? C.shadowSm : 'none', transition: 'background .15s ease' }}
-              onMouseEnter={(e) => { if (!on) e.currentTarget.style.background = C.hover }}
+              style={{ background: on ? 'rgba(255,255,255,0.09)' : 'transparent', transition: 'background .15s ease' }}
+              onMouseEnter={(e) => { if (!on) e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
               onMouseLeave={(e) => { if (!on) e.currentTarget.style.background = 'transparent' }}
             >
-              {on && <span className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full" style={{ width: 3, height: 18, background: C.accent }} />}
-              <Icon size={17} color={on ? C.accent : C.ink3} strokeWidth={on ? 2 : 1.75} />
-              <span className="text-[13px]" style={{ color: on ? C.ink : C.ink2, fontWeight: on ? 600 : 500 }}>{item.label}</span>
+              {on && <span className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full" style={{ width: 3, height: 18, background: C.gold }} />}
+              <Icon size={17} color={on ? C.gold : C.cream2} strokeWidth={on ? 2 : 1.75} />
+              <span className="text-[13px]" style={{ color: on ? C.cream : C.cream2, fontWeight: on ? 600 : 500 }}>{item.label}</span>
             </button>
           )
         })}
       </nav>
 
       {/* System status */}
-      <div className="mx-3 mb-2 rounded-lg px-3 py-2.5" style={{ background: C.surface, border: `1px solid ${C.line}` }}>
+      <div className="mx-3 mb-2 rounded-lg px-3 py-2.5" style={{ background: 'rgba(255,255,255,0.06)', border: `1px solid ${C.tealLine}` }}>
         <div className="flex items-center justify-between">
-          <span className="flex items-center gap-2 text-[11px] font-medium" style={{ color: C.ink2 }}>
+          <span className="flex items-center gap-2 text-[11px] font-medium" style={{ color: C.cream2 }}>
             <LiveDot /> All systems live
           </span>
         </div>
-        <div className="font-mono text-[10px] mt-1.5" style={{ color: C.ink4 }}>8 signals · synced 06:14</div>
+        <div className="font-mono text-[10px] mt-1.5" style={{ color: C.cream3 }}>8 signals · synced 06:14</div>
       </div>
 
       {/* User */}
-      <div className="m-3 mt-1 pt-3 flex items-center gap-2.5" style={{ borderTop: `1px solid ${C.line}` }}>
-        <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-semibold shrink-0" style={{ background: C.accentDeep, color: C.surface }}>KD</div>
+      <div className="m-3 mt-1 pt-3 flex items-center gap-2.5" style={{ borderTop: `1px solid ${C.tealLine}` }}>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-semibold shrink-0" style={{ background: C.gold, color: C.accentDeep }}>KD</div>
         <div className="leading-tight min-w-0 flex-1">
-          <div className="text-[12px] font-medium truncate" style={{ color: C.ink }}>K. Dlamini</div>
-          <div className="text-[10px] truncate" style={{ color: C.ink3 }}>Head Field Ranger</div>
+          <div className="text-[12px] font-medium truncate" style={{ color: C.cream }}>K. Dlamini</div>
+          <div className="text-[10px] truncate" style={{ color: C.cream3 }}>Head Field Ranger</div>
         </div>
-        <ChevronRight size={14} color={C.ink4} />
+        <ChevronRight size={14} color={C.cream3} />
       </div>
     </aside>
   )
@@ -594,29 +634,29 @@ function Sidebar({ active, setActive }) {
    ════════════════════════════════════════════════════════════════ */
 function TopBar({ page }) {
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between gap-6 px-10 h-[60px]" style={{ background: 'rgba(241,238,231,0.8)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', borderBottom: `1px solid ${C.line}` }}>
+    <header className="sticky top-0 z-10 flex items-center justify-between gap-6 px-10 h-[60px]" style={{ background: 'rgba(5,144,127,0.82)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', borderBottom: `1px solid ${C.tealLine}` }}>
       <div className="min-w-0">
-        <h1 className="font-display text-[19px] font-semibold leading-none tracking-[-0.01em]" style={{ color: C.ink }}>{page.title}</h1>
-        <p className="text-[11.5px] mt-1.5" style={{ color: C.ink3 }}>{page.subtitle}</p>
+        <h1 className="font-display text-[19px] font-semibold leading-none tracking-[-0.01em]" style={{ color: C.cream }}>{page.title}</h1>
+        <p className="text-[11.5px] mt-1.5" style={{ color: C.cream2 }}>{page.subtitle}</p>
       </div>
 
       <div className="flex-1 max-w-[380px] hidden lg:block">
-        <div className="flex items-center gap-2.5 rounded-lg px-3 h-9" style={{ background: C.surface, border: `1px solid ${C.line}` }}>
-          <Search size={15} color={C.ink3} />
-          <input placeholder="Search animals, sectors, incidents…" className="bg-transparent outline-none text-[12.5px] w-full" style={{ color: C.ink }} />
-          <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded" style={{ color: C.ink3, background: C.surface2, border: `1px solid ${C.line}` }}>⌘K</kbd>
+        <div className="flex items-center gap-2.5 rounded-lg px-3 h-9" style={{ background: 'rgba(255,255,255,0.10)', border: `1px solid ${C.tealLine}` }}>
+          <Search size={15} color={C.cream2} />
+          <input placeholder="Search animals, sectors, incidents…" className="bg-transparent outline-none text-[12.5px] w-full placeholder:text-[rgba(244,241,234,0.55)]" style={{ color: C.cream }} />
+          <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded" style={{ color: C.cream2, background: 'rgba(255,255,255,0.10)', border: `1px solid ${C.tealLine}` }}>⌘K</kbd>
         </div>
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="font-mono text-[11px] hidden xl:block" style={{ color: C.ink3 }}>Tue 10 Jun · 06:14 SAST</span>
-        <span className="w-px h-5 hidden xl:block" style={{ background: C.line2 }} />
+        <span className="font-mono text-[11px] hidden xl:block" style={{ color: C.cream2 }}>Tue 10 Jun · 06:14 SAST</span>
+        <span className="w-px h-5 hidden xl:block" style={{ background: C.tealLine2 }} />
         {[Bell, Settings].map((Icon, i) => (
-          <button key={i} className="relative w-9 h-9 rounded-lg flex items-center justify-center" style={{ border: `1px solid ${C.line}`, background: C.surface, transition: 'background .15s ease' }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = C.surface2)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = C.surface)}>
-            <Icon size={16} color={C.ink2} strokeWidth={1.75} />
-            {i === 0 && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: C.critical, border: `1.5px solid ${C.surface}` }} />}
+          <button key={i} className="relative w-9 h-9 rounded-lg flex items-center justify-center" style={{ border: `1px solid ${C.tealLine}`, background: 'rgba(255,255,255,0.08)', transition: 'background .15s ease' }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.16)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}>
+            <Icon size={16} color={C.cream} strokeWidth={1.75} />
+            {i === 0 && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: C.gold, border: `1.5px solid ${C.tealTop}` }} />}
           </button>
         ))}
       </div>
@@ -628,11 +668,12 @@ function TopBar({ page }) {
    METRICS
    ════════════════════════════════════════════════════════════════ */
 function Metrics() {
+  // light, teal-card-friendly trend colors
   const meta = {
-    up: { color: C.positive, Icon: ArrowUpRight },
-    down: { color: C.critical, Icon: ArrowDownRight },
-    crit: { color: C.critical, Icon: AlertTriangle },
-    flat: { color: C.ink3, Icon: Minus },
+    up: { color: '#A7C97E', Icon: ArrowUpRight },
+    down: { color: '#E8A48C', Icon: ArrowDownRight },
+    crit: { color: '#E8A48C', Icon: AlertTriangle },
+    flat: { color: C.cream2, Icon: Minus },
   }
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -640,17 +681,17 @@ function Metrics() {
         const m = meta[k.trend]
         const M = m.Icon
         return (
-          <Card key={k.label} hover className="p-[18px]">
-            <Eyebrow className="text-[10px]">{k.label}</Eyebrow>
+          <Card key={k.label} tone="teal" hover className="p-[18px]">
+            <Eyebrow className="text-[10px]" style={{ color: C.cream2 }}>{k.label}</Eyebrow>
             <div className="flex items-end justify-between gap-2 mt-3">
-              <div className="font-mono text-[24px] leading-none" style={{ color: C.ink }}><AnimatedValue value={k.value} /></div>
-              <Sparkline data={k.spark} id={i} color={m.color === C.ink3 ? C.ink3 : m.color} />
+              <div className="font-mono text-[24px] leading-none" style={{ color: C.cream }}><AnimatedValue value={k.value} /></div>
+              <Sparkline data={k.spark} id={i} color={m.color} />
             </div>
             <div className="flex items-center gap-1.5 mt-3">
               <M size={12} color={m.color} strokeWidth={2.2} />
               <span className="text-[11.5px] font-medium" style={{ color: m.color }}>{k.delta}</span>
             </div>
-            <div className="text-[10.5px] mt-1" style={{ color: C.ink4 }}>{k.note}</div>
+            <div className="text-[10.5px] mt-1" style={{ color: C.cream3 }}>{k.note}</div>
           </Card>
         )
       })}
@@ -708,7 +749,7 @@ function ReserveMap() {
           <span className="text-[13px] font-semibold" style={{ color: C.ink }}>Live Animal Tracking</span>
           <span className="text-[12px] hidden sm:inline" style={{ color: C.ink4 }}>· Mziki Reserve · 6,000 ha</span>
         </div>
-        <span className="flex items-center gap-2 caps text-[10px] font-semibold" style={{ color: C.positive }}>
+        <span className="flex items-center gap-2 caps text-[10px] font-semibold" style={{ color: C.goldDeep }}>
           <LiveDot /> Live · 8 signals
         </span>
       </div>
@@ -923,7 +964,9 @@ function AnimalRoster({ animals, selIndex, onSelect }) {
               onMouseEnter={(e) => { if (!on) e.currentTarget.style.background = C.hover }}
               onMouseLeave={(e) => { if (!on) e.currentTarget.style.background = 'transparent' }}>
               {on && <span className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full" style={{ width: 3, height: 22, background: meta.color }} />}
-              <div className="w-9 h-9 rounded-[10px] flex items-center justify-center text-[18px] shrink-0" style={{ background: C.surface, border: `1px solid ${C.line}` }}>{a.emoji}</div>
+              <div className="w-9 h-9 rounded-[10px] overflow-hidden flex items-center justify-center text-[18px] shrink-0" style={{ background: C.surface2, border: `1px solid ${C.line}` }}>
+                {PHOTO[a.id] ? <img src={PHOTO[a.id]} alt={a.name} loading="lazy" className="w-full h-full object-cover" /> : a.emoji}
+              </div>
               <div className="min-w-0 flex-1">
                 <div className="text-[12.5px] font-medium truncate" style={{ color: C.ink }}>{a.name}</div>
                 <div className="text-[10.5px] mt-0.5 truncate" style={{ color: C.ink3 }}>{a.species} · {a.sector}</div>
@@ -968,7 +1011,9 @@ function AnimalProfile({ animal }) {
       {/* hero header */}
       <div className="p-6 flex items-start justify-between gap-5 flex-wrap" style={{ borderBottom: `1px solid ${C.line}` }}>
         <div className="flex items-center gap-4 min-w-0">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-[34px] shrink-0" style={{ background: C.surface2, border: `1px solid ${C.line}` }}>{animal.emoji}</div>
+          <div className="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center text-[34px] shrink-0" style={{ background: C.surface2, border: `1px solid ${C.line}` }}>
+            {PHOTO[animal.id] ? <img src={PHOTO[animal.id]} alt={animal.name} className="w-full h-full object-cover" /> : animal.emoji}
+          </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h2 className="font-display text-[24px] font-semibold leading-none tracking-[-0.015em]" style={{ color: C.ink }}>{animal.name}</h2>
@@ -1096,24 +1141,24 @@ function SightingsTable() {
    ════════════════════════════════════════════════════════════════ */
 function DispatchStats({ openCount }) {
   const stats = [
-    { icon: Users, label: 'Deployed', value: '6 / 8', sub: '2 on standby', color: C.accent },
-    { icon: Navigation, label: 'Responding', value: '1', sub: 'incident W-04', color: C.critical },
-    { icon: Clock, label: 'Standby', value: '2', sub: 'ready to deploy', color: C.warning },
-    { icon: ClipboardList, label: 'Open Tasks', value: openCount, sub: 'awaiting assignment', color: C.accentDeep },
+    { icon: Users, label: 'Deployed', value: '6 / 8', sub: '2 on standby', color: C.gold },
+    { icon: Navigation, label: 'Responding', value: '1', sub: 'incident W-04', color: '#E8A48C' },
+    { icon: Clock, label: 'Standby', value: '2', sub: 'ready to deploy', color: C.gold },
+    { icon: ClipboardList, label: 'Open Tasks', value: openCount, sub: 'awaiting assignment', color: C.cream },
   ]
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((s) => {
         const Icon = s.icon
         return (
-          <Card key={s.label} hover className="p-[18px] flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${s.color}14` }}>
+          <Card key={s.label} tone="teal" hover className="p-[18px] flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.10)' }}>
               <Icon size={17} color={s.color} strokeWidth={1.9} />
             </div>
             <div className="min-w-0">
-              <div className="font-mono text-[21px] leading-none" style={{ color: C.ink }}><AnimatedValue value={s.value} /></div>
-              <Eyebrow className="block mt-1.5 text-[9.5px]">{s.label}</Eyebrow>
-              <div className="text-[10px] mt-0.5 truncate" style={{ color: C.ink4 }}>{s.sub}</div>
+              <div className="font-mono text-[21px] leading-none" style={{ color: C.cream }}><AnimatedValue value={s.value} /></div>
+              <Eyebrow className="block mt-1.5 text-[9.5px]" style={{ color: C.cream2 }}>{s.label}</Eyebrow>
+              <div className="text-[10px] mt-0.5 truncate" style={{ color: C.cream3 }}>{s.sub}</div>
             </div>
           </Card>
         )
@@ -1268,7 +1313,7 @@ export default function App() {
   const [active, setActive] = useState('overview')
   const page = PAGES[active]
   return (
-    <div className="min-h-screen" style={{ background: C.paper, color: C.ink }}>
+    <div className="min-h-screen" style={{ background: C.paper, color: C.cream }}>
       <Sidebar active={active} setActive={setActive} />
       <div className="ml-[244px]">
         <TopBar page={page} />
@@ -1277,7 +1322,7 @@ export default function App() {
           {active === 'animal' && <AnimalView />}
           {active === 'dispatch' && <DispatchView />}
 
-          <footer className="flex items-center justify-between flex-wrap gap-2 pt-2 pb-1 text-[10.5px]" style={{ color: C.ink4 }}>
+          <footer className="flex items-center justify-between flex-wrap gap-2 pt-2 pb-1 text-[10.5px]" style={{ color: C.cream3 }}>
             <span className="flex items-center gap-1.5"><MapPin size={11} /> Mziki Private Game Reserve · Munywana Conservancy · KwaZulu-Natal</span>
             <span className="font-mono caps" style={{ letterSpacing: '0.06em' }}>&Beyond Phinda · Zuka · 400+ bird species</span>
           </footer>

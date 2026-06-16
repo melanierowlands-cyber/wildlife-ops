@@ -8,33 +8,34 @@
 :root {
   color-scheme: light;
 
-  /* type */
+  /* type — Mziki uses Hanken Grotesk throughout */
   --font-ui: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Fraunces', 'Hanken Grotesk', Georgia, serif;
+  --font-display: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', 'Roboto Mono', monospace;
 
-  /* surfaces — warm paper, layered for depth without heavy shadow */
-  --paper: #f1eee7;
+  /* canvas — deep teal */
+  --paper: #004b42;
   --surface: #fbfaf6;
   --surface-2: #f4f1ea;
-  --sunken: #e9e5dc;
+  --sunken: #e4e4d5;
 
-  /* ink — warm dark olive */
-  --ink: #24281d;
-  --ink-2: #5b5749;
-  --ink-3: #8c8678;
-  --ink-4: #aaa496;
+  /* ink — dark, for cream cards */
+  --ink: #1f2a26;
+  --ink-2: #4a544f;
+  --ink-3: #7c847d;
+  --ink-4: #a6aba1;
 
-  /* hairlines */
-  --line: rgba(36, 40, 29, 0.08);
-  --line-2: rgba(36, 40, 29, 0.14);
+  /* hairlines on cream */
+  --line: rgba(31, 42, 38, 0.10);
+  --line-2: rgba(31, 42, 38, 0.16);
 
-  /* brand + semantic (earthy, desaturated) */
-  --accent: #4f6b5c;
-  --accent-deep: #3a5142;
+  /* brand + semantic (Mziki — teal + gold) */
+  --accent: #02695d;
+  --accent-deep: #004b42;
+  --gold: #d29b00;
   --critical: #b0492f;
-  --warning: #a9792b;
-  --positive: #5b7a50;
+  --warning: #c0871e;
+  --positive: #5a8021;
   --info: #4c6a88;
 }
 
@@ -52,7 +53,7 @@ body,
 body {
   margin: 0;
   background-color: var(--paper);
-  color: var(--ink);
+  color: var(--cream, #f4f1ea);
   font-family: var(--font-ui);
   font-size: 14px;
   line-height: 1.5;
@@ -83,7 +84,7 @@ body {
 }
 
 ::selection {
-  background: rgba(79, 107, 92, 0.2);
+  background: rgba(2, 105, 93, 0.22);
   color: var(--ink);
 }
 
