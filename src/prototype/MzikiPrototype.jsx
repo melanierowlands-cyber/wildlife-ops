@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import OverviewScreen from './OverviewScreen'
+import AnimalHealthScreen from './AnimalHealthScreen'
+import TeamDispatchScreen from './TeamDispatchScreen'
 
 /* Pixel-faithful Mziki prototype shell.
    Renders 1280×832 Figma artboards, scaled to fit the viewport width. */
-const SCREENS = { overview: OverviewScreen }
+const SCREENS = { overview: OverviewScreen, animal: AnimalHealthScreen, dispatch: TeamDispatchScreen }
 
 export default function MzikiPrototype({ onExit }) {
   const [screen, setScreen] = useState('overview')
@@ -24,7 +26,11 @@ export default function MzikiPrototype({ onExit }) {
       <style>{`
         @keyframes protoPulse { 0% { transform: scale(.7); opacity:.55 } 80%,100% { transform: scale(2.4); opacity:0 } }
         .proto-pulse::before { content:''; position:absolute; inset:0; border-radius:50%; background:#d29b00; animation: protoPulse 2.6s cubic-bezier(.21,.61,.35,1) infinite; }
-        @media (prefers-reduced-motion: reduce) { .proto-pulse::before { animation:none } }
+        @keyframes protoFade { from { opacity:0; transform: translateY(6px) } to { opacity:1; transform:none } }
+        .proto-fade { animation: protoFade .28s cubic-bezier(.22,.61,.36,1) both; }
+        @keyframes protoDraw { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
+        .proto-draw { stroke-dasharray: 1; animation: protoDraw 1s cubic-bezier(.22,.61,.36,1) both; }
+        @media (prefers-reduced-motion: reduce) { .proto-pulse::before, .proto-fade, .proto-draw { animation:none } }
       `}</style>
 
       <div style={{ width: 1280 * scale, height: 832 * scale, position: 'relative' }}>
