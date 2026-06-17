@@ -129,7 +129,7 @@ export default function TeamDispatchScreen({ onNavigate }) {
           <span style={{ fontSize: 11, fontWeight: 300, color: COL.label }}>TASK ASSIGNMENT</span>
           <Badge label={`${openCount} OPEN`} color={COL.gold} small />
         </div>
-        <div style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, paddingRight: 4, marginRight: -4 }}>
+        <div style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: 8, paddingRight: 4, marginRight: -4 }}>
           {tasks.map((t) => <TaskItem key={t.id} t={t} onAssign={assign} />)}
         </div>
       </div>
