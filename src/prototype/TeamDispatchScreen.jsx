@@ -124,12 +124,12 @@ export default function TeamDispatchScreen({ onNavigate }) {
       </div>
 
       {/* task assignment */}
-      <div style={{ position: 'absolute', left: 914, top: 215, width: 330, height: 584, boxSizing: 'border-box', background: COL.panel, borderRadius: 21, padding: '18px 16px 16px', display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ position: 'absolute', left: 914, top: 243, width: 330, height: 556, boxSizing: 'border-box', background: COL.panel, borderRadius: 21, padding: '18px 16px 16px', display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: '0 0 auto' }}>
           <span style={{ fontSize: 11, fontWeight: 300, color: COL.label }}>TASK ASSIGNMENT</span>
           <Badge label={`${openCount} OPEN`} color={COL.gold} small />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, paddingRight: 4, marginRight: -4 }}>
           {tasks.map((t) => <TaskItem key={t.id} t={t} onAssign={assign} />)}
         </div>
       </div>
