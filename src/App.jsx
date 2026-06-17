@@ -1312,15 +1312,16 @@ function DispatchView() {
    ════════════════════════════════════════════════════════════════ */
 export default function App() {
   const [active, setActive] = useState('overview')
-  const [proto, setProto] = useState(() => typeof window !== 'undefined' && window.location.hash === '#proto')
+  // Mziki pixel-perfect prototype is the default site; old re-skin lives at #old
+  const [showOld, setShowOld] = useState(() => typeof window !== 'undefined' && window.location.hash === '#old')
   useEffect(() => {
-    const onHash = () => setProto(window.location.hash === '#proto')
+    const onHash = () => setShowOld(window.location.hash === '#old')
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
   const page = PAGES[active]
 
-  if (proto) return <MzikiPrototype onExit={() => { window.location.hash = '' }} />
+  if (!showOld) return <MzikiPrototype onExit={() => { window.location.hash = 'old' }} />
 
   return (
     <div className="min-h-screen" style={{ background: C.paper, color: C.cream }}>
@@ -1339,13 +1340,13 @@ export default function App() {
         </main>
       </div>
 
-      {/* entry to the pixel-perfect Figma prototype */}
+      {/* this is the old responsive re-skin; return to the Mziki site */}
       <button
-        onClick={() => { window.location.hash = 'proto' }}
+        onClick={() => { window.location.hash = '' }}
         className="fixed right-4 bottom-4 z-50 cursor-pointer rounded-full font-medium"
         style={{ padding: '9px 14px', fontSize: 13, color: C.accentDeep, background: C.gold, boxShadow: '0 8px 24px -8px rgba(0,0,0,0.45)' }}
       >
-        Pixel prototype →
+        ← Back to Mziki site
       </button>
     </div>
   )

@@ -43,13 +43,13 @@ export default function MzikiPrototype({ onExit }) {
         onClick={onExit}
         style={{
           position: 'fixed', right: 16, bottom: 16, zIndex: 50, cursor: 'pointer',
-          padding: '9px 14px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.22)',
-          background: 'rgba(0,40,34,0.82)', backdropFilter: 'blur(8px)', color: '#f4f1ea',
-          fontFamily: '"Hanken Grotesk", sans-serif', fontSize: 13, fontWeight: 600,
-          boxShadow: '0 8px 24px -8px rgba(0,0,0,0.5)',
+          padding: '7px 12px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.18)',
+          background: 'rgba(0,40,34,0.55)', backdropFilter: 'blur(8px)', color: 'rgba(244,241,234,0.75)',
+          fontFamily: '"Hanken Grotesk", sans-serif', fontSize: 12, fontWeight: 500,
+          boxShadow: '0 8px 24px -8px rgba(0,0,0,0.4)',
         }}
       >
-        ← Back to live app
+        Old version ↗
       </button>
     </div>
   )
