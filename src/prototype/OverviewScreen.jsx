@@ -51,9 +51,9 @@ const NAV = [
 ]
 
 const KPIS = [
-  { label: 'Animals tracked', value: '847', delta: '+12 this week', note: 'collared and monitored' },
+  { label: 'Animals Tracked', value: '847', delta: '+12 this week', note: 'collared and monitored' },
   { label: 'Field Teams', value: '6/8', delta: '2 on standby', note: 'deployed across reserve' },
-  { label: 'open Incidents', value: '3', delta: '1 critical', note: 'w-04 snare injury' },
+  { label: 'Open Incidents', value: '3', delta: '1 critical', note: 'w-04 snare injury' },
   { label: 'Avg Health', value: '91%', delta: '-2% vs last month', note: 'across all species' },
   { label: 'Area Covered', value: '2,340', delta: '39% of 6,000 ha', note: 'patrolled today' },
 ]
@@ -119,16 +119,18 @@ function AnimalRow({ row, selected, onSelect }) {
 
 export default function OverviewScreen({ onNavigate, active = 'overview' }) {
   const [sel, setSel] = useState('elephant')
+  const [toast, setToast] = useState(null)
   const t = TRACK[sel]
   const titleColor = t.status === 'monitor' ? COL.gold : COL.healthy
+  const act = (msg) => { setToast(msg); clearTimeout(act._t); act._t = setTimeout(() => setToast(null), 2200) }
 
   return (
     <div style={{ position: 'relative', width: 1280, height: 832, background: COL.canvas, fontFamily: '"Hanken Grotesk", sans-serif', overflow: 'hidden' }}>
       {/* ───────────── SIDEBAR ───────────── */}
       <div style={{ position: 'absolute', left: 0, top: 0, width: 309, height: 832, background: COL.panel }} />
       {/* logo */}
-      <div style={{ position: 'absolute', left: 21, top: 46, width: 70, height: 70, borderRadius: 12, background: COL.canvas, overflow: 'hidden' }}>
-        <img src={`${A}/logo.png`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      <div style={{ position: 'absolute', left: 21, top: 46, width: 70, height: 70, borderRadius: 12, background: COL.canvas, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img src={`${A}/logo-paw.png`} alt="" style={{ width: 46, height: 46, objectFit: 'contain' }} />
       </div>
       <p style={text(112, 46, { fontSize: 36, fontWeight: 500, letterSpacing: '5px', color: COL.ink })}>MZIKI</p>
       <p style={text(115, 93, { fontSize: 16, fontWeight: 700, letterSpacing: '1.28px', color: COL.muted })}>BIG 5 WILDLIFE OPS</p>
@@ -138,8 +140,8 @@ export default function OverviewScreen({ onNavigate, active = 'overview' }) {
       {NAV.map((n) => (
         <button key={n.id} onClick={() => onNavigate && onNavigate(n.id)}
           style={{ position: 'absolute', left: 0, top: n.y - 10, width: 309, height: 70, background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
-          <img src={`${A}/${n.icon}`} alt="" style={{ position: 'absolute', left: 41, top: 10, width: 50, height: 50 }} />
-          <span style={{ position: 'absolute', left: n.lx, top: 21, fontSize: 20, fontWeight: n.weight, letterSpacing: n.ls || 'normal', color: COL.ink, fontFamily: '"Hanken Grotesk", sans-serif' }}>{n.label}</span>
+          <img src={`${A}/${n.icon}`} alt="" style={{ position: 'absolute', left: 45, top: 15, width: 40, height: 40 }} />
+          <span style={{ position: 'absolute', left: n.lx, top: 25, fontSize: 16.5, fontWeight: n.weight, letterSpacing: n.ls || 'normal', color: COL.ink, fontFamily: '"Hanken Grotesk", sans-serif' }}>{n.label}</span>
         </button>
       ))}
 
@@ -199,10 +201,14 @@ export default function OverviewScreen({ onNavigate, active = 'overview' }) {
       {/* map */}
       <img src={`${A}/map.png`} alt="Live tracking map" style={{ position: 'absolute', left: 885, top: 303, width: 354.96, height: 383, objectFit: 'cover' }} />
       {/* buttons */}
-      <button style={{ position: 'absolute', left: 881, top: 215, width: 183, height: 49, borderTopLeftRadius: 21, background: COL.panelStrong, border: 'none', cursor: 'pointer' }} />
-      <div style={{ position: 'absolute', left: 1064, top: 215, width: 180, height: 49, borderTopRightRadius: 21, background: COL.gold }} />
-      <p style={text(903.56, 229, { fontSize: 16, fontWeight: 600, color: COL.ink })}>Log observation</p>
-      <p style={text(1093.8, 229, { fontSize: 16, fontWeight: 600, color: COL.white })}>Schedule Vet</p>
+      <button onClick={() => act(`Observation logged for ${t.title}`)}
+        style={{ position: 'absolute', left: 881, top: 215, width: 183, height: 49, borderTopLeftRadius: 21, background: COL.panelStrong, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Hanken Grotesk", sans-serif', fontSize: 16, fontWeight: 600, color: COL.ink }}>
+        Log Observation
+      </button>
+      <button onClick={() => act(`Vet scheduled for ${t.title}`)}
+        style={{ position: 'absolute', left: 1064, top: 215, width: 180, height: 49, borderTopRightRadius: 21, background: COL.gold, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Hanken Grotesk", sans-serif', fontSize: 16, fontWeight: 600, color: COL.white }}>
+        Schedule Vet
+      </button>
       {/* header row */}
       <img src={`${A}/hdr-pin.svg`} alt="" style={{ position: 'absolute', left: 890, top: 277, width: 14, height: 11 }} />
       <p style={text(913, 276, { fontSize: 10, fontWeight: 300, color: COL.muted })}>LIVE ANIMAL TRACKING</p>
@@ -224,6 +230,17 @@ export default function OverviewScreen({ onNavigate, active = 'overview' }) {
           <p style={text(vt.vx, vt.vy, { fontSize: 20, fontWeight: 400, color: COL.white })}>{t.v[i]}</p>
         </div>
       ))}
+
+      {/* toast (button feedback) */}
+      <div style={{
+        position: 'absolute', left: '50%', bottom: 20, transform: `translateX(-50%) translateY(${toast ? 0 : 12}px)`,
+        opacity: toast ? 1 : 0, transition: 'opacity .2s ease, transform .2s ease', pointerEvents: 'none',
+        background: 'rgba(0,40,34,0.92)', color: COL.white, padding: '10px 18px', borderRadius: 999,
+        fontFamily: '"Hanken Grotesk", sans-serif', fontSize: 14, fontWeight: 500, whiteSpace: 'nowrap',
+        boxShadow: '0 10px 28px -10px rgba(0,0,0,0.5)', border: `1px solid ${COL.gold}`,
+      }}>
+        {toast || ''}
+      </div>
     </div>
   )
 }
@@ -242,7 +259,7 @@ function StatCard({ label, value, delta, note }) {
       }}
     >
       <p style={{ margin: 0, fontSize: 13.5, fontWeight: 500, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>{label}</p>
-      <p style={{ margin: 0, fontSize: 32, fontWeight: 400, lineHeight: 'normal' }}><AnimatedValue value={value} /></p>
+      <p style={{ margin: 0, fontSize: 27, fontWeight: 400, lineHeight: 'normal' }}><AnimatedValue value={value} /></p>
       <p style={{ margin: 0, fontSize: 12.5, fontWeight: 500 }}>{delta}</p>
       <p style={{ margin: 0, fontSize: 10.5, fontWeight: 300 }}>{note}</p>
     </div>
