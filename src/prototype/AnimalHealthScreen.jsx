@@ -141,14 +141,12 @@ function Btn({ primary, children, onClick }) {
 
 const panelBase = { position: 'absolute', top: 77, height: 735, background: COL.panel, borderRadius: 21, overflow: 'hidden', boxSizing: 'border-box', fontFamily: HG }
 
-export default function AnimalHealthScreen({ onNavigate }) {
+export default function AnimalHealthScreen({ onNavigate, onOpenModal }) {
   const [sel, setSel] = useState('lion')
-  const [toast, setToast] = useState(null)
   const a = ANIMALS.find((x) => x.key === sel)
   const sc = statusColor(a.status)
   const deltaColor = a.delta.startsWith('▲') ? COL.healthy : sc
   const photo = PHOTOS[a.key]
-  const act = (m) => { setToast(m); clearTimeout(act._t); act._t = setTimeout(() => setToast(null), 2200) }
 
   return (
     <div style={{ position: 'relative', width: 1280, height: 832, background: COL.canvas, fontFamily: HG, overflow: 'hidden' }}>
@@ -201,8 +199,8 @@ export default function AnimalHealthScreen({ onNavigate }) {
           <p style={{ margin: 0, fontSize: 9, fontWeight: 300, color: COL.muted, letterSpacing: '0.6px' }}>CLINICAL NOTE</p>
           <p style={{ margin: 0, fontSize: 11, color: COL.ink, lineHeight: 1.45 }}>{a.note}</p>
           <div style={{ display: 'flex', gap: 10 }}>
-            <Btn onClick={() => act(`Observation logged for ${a.name}`)}>Log observation</Btn>
-            <Btn primary onClick={() => act(`Vet scheduled for ${a.name}`)}>Schedule vet</Btn>
+            <Btn onClick={() => onOpenModal && onOpenModal('log', a.name)}>Log observation</Btn>
+            <Btn primary onClick={() => onOpenModal && onOpenModal('vet', a.name)}>Schedule vet</Btn>
           </div>
         </div>
       </div>
@@ -229,11 +227,6 @@ export default function AnimalHealthScreen({ onNavigate }) {
             )
           })}
         </div>
-      </div>
-
-      {/* toast */}
-      <div style={{ position: 'absolute', left: '50%', bottom: 20, transform: `translateX(-50%) translateY(${toast ? 0 : 12}px)`, opacity: toast ? 1 : 0, transition: 'opacity .2s ease, transform .2s ease', pointerEvents: 'none', background: 'rgba(0,40,34,0.92)', color: COL.white, padding: '10px 18px', borderRadius: 999, fontFamily: HG, fontSize: 14, fontWeight: 500, whiteSpace: 'nowrap', boxShadow: '0 10px 28px -10px rgba(0,0,0,0.5)', border: `1px solid ${COL.gold}` }}>
-        {toast || ''}
       </div>
     </div>
   )

@@ -73,12 +73,10 @@ function AnimalRow({ row, selected, onSelect }) {
   )
 }
 
-export default function OverviewScreen({ onNavigate, active = 'overview' }) {
+export default function OverviewScreen({ onNavigate, active = 'overview', onOpenModal }) {
   const [sel, setSel] = useState('elephant')
-  const [toast, setToast] = useState(null)
   const t = TRACK[sel]
   const titleColor = t.status === 'monitor' ? COL.gold : COL.healthy
-  const act = (msg) => { setToast(msg); clearTimeout(act._t); act._t = setTimeout(() => setToast(null), 2200) }
 
   return (
     <div style={{ position: 'relative', width: 1280, height: 832, background: COL.canvas, fontFamily: '"Hanken Grotesk", sans-serif', overflow: 'hidden' }}>
@@ -104,11 +102,11 @@ export default function OverviewScreen({ onNavigate, active = 'overview' }) {
       {/* map */}
       <img src={`${A}/map.png`} alt="Live tracking map" style={{ position: 'absolute', left: 885, top: 303, width: 354.96, height: 383, objectFit: 'cover' }} />
       {/* buttons */}
-      <button onClick={() => act(`Observation logged for ${t.title}`)}
+      <button onClick={() => onOpenModal && onOpenModal('log', t.title)}
         style={{ position: 'absolute', left: 881, top: 215, width: 183, height: 49, borderTopLeftRadius: 21, background: COL.panelStrong, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Hanken Grotesk", sans-serif', fontSize: 16, fontWeight: 600, color: COL.ink }}>
         Log Observation
       </button>
-      <button onClick={() => act(`Vet scheduled for ${t.title}`)}
+      <button onClick={() => onOpenModal && onOpenModal('vet', t.title)}
         style={{ position: 'absolute', left: 1064, top: 215, width: 180, height: 49, borderTopRightRadius: 21, background: COL.gold, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Hanken Grotesk", sans-serif', fontSize: 16, fontWeight: 600, color: COL.white }}>
         Schedule Vet
       </button>
@@ -133,17 +131,6 @@ export default function OverviewScreen({ onNavigate, active = 'overview' }) {
           <p style={text(vt.vx, vt.vy, { fontSize: 20, fontWeight: 400, color: COL.white })}>{t.v[i]}</p>
         </div>
       ))}
-
-      {/* toast (button feedback) */}
-      <div style={{
-        position: 'absolute', left: '50%', bottom: 20, transform: `translateX(-50%) translateY(${toast ? 0 : 12}px)`,
-        opacity: toast ? 1 : 0, transition: 'opacity .2s ease, transform .2s ease', pointerEvents: 'none',
-        background: 'rgba(0,40,34,0.92)', color: COL.white, padding: '10px 18px', borderRadius: 999,
-        fontFamily: '"Hanken Grotesk", sans-serif', fontSize: 14, fontWeight: 500, whiteSpace: 'nowrap',
-        boxShadow: '0 10px 28px -10px rgba(0,0,0,0.5)', border: `1px solid ${COL.gold}`,
-      }}>
-        {toast || ''}
-      </div>
     </div>
   )
 }
