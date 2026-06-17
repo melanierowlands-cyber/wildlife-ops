@@ -132,6 +132,8 @@ export default function TeamDispatchScreen({ onNavigate }) {
         <div style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: 8, paddingRight: 4, marginRight: -4 }}>
           {tasks.map((t) => <TaskItem key={t.id} t={t} onAssign={assign} />)}
         </div>
+        {/* bottom fade — masks the partial card at the scroll cutoff */}
+        <div style={{ position: 'absolute', left: 16, right: 16, bottom: 16, height: 26, borderBottomLeftRadius: 21, borderBottomRightRadius: 21, background: `linear-gradient(to bottom, rgba(228,228,213,0), ${COL.panel})`, pointerEvents: 'none' }} />
       </div>
 
       {/* toast */}
