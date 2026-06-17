@@ -101,6 +101,16 @@ export default function OverviewScreen({ onNavigate, active = 'overview', onOpen
       <div style={{ position: 'absolute', left: 881, top: 684, width: 362, height: 126, borderBottomLeftRadius: 21, borderBottomRightRadius: 21, background: COL.panelStrong }} />
       {/* map */}
       <img src={`${A}/map.png`} alt="Live tracking map" style={{ position: 'absolute', left: 885, top: 303, width: 354.96, height: 383, objectFit: 'cover' }} />
+      {/* map legend (code overlay — sits in the map's bottom-left corner) */}
+      <div style={{ position: 'absolute', left: 893, bottom: 154, width: 118, boxSizing: 'border-box', padding: '8px 11px 9px', borderRadius: 11, background: 'rgba(10,28,23,0.58)', backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)', display: 'flex', flexDirection: 'column', gap: 6, fontFamily: '"Hanken Grotesk", sans-serif' }}>
+        <span style={{ fontSize: 8, fontWeight: 400, letterSpacing: '1.6px', color: 'rgba(244,241,234,0.62)' }}>LEGEND</span>
+        {[['#6aa329', 'Healthy / tracked'], ['#e0a92a', 'Monitoring'], ['#c8593a', 'Critical alert'], ['#5b9bd5', 'Field team']].map(([c, l]) => (
+          <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: c, flex: '0 0 auto' }} />
+            <span style={{ fontSize: 9.5, fontWeight: 400, color: '#f4f1ea', whiteSpace: 'nowrap' }}>{l}</span>
+          </div>
+        ))}
+      </div>
       {/* buttons */}
       <button onClick={() => onOpenModal && onOpenModal('log', t.title)}
         style={{ position: 'absolute', left: 881, top: 215, width: 183, height: 49, borderTopLeftRadius: 21, background: COL.panelStrong, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Hanken Grotesk", sans-serif', fontSize: 16, fontWeight: 600, color: COL.ink }}>

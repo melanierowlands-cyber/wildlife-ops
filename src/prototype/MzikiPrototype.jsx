@@ -15,10 +15,16 @@ export default function MzikiPrototype({ onExit }) {
   const [toast, setToast] = useState(null)
 
   useEffect(() => {
-    const fit = () => setScale(Math.min(1, window.innerWidth / 1280))
+    // Contain-fit the 1280×832 artboard within the viewport (both axes),
+    // so the whole dashboard stays fully visible and maximized on any screen.
+    const fit = () => setScale(Math.min(window.innerWidth / 1280, window.innerHeight / 832))
     fit()
     window.addEventListener('resize', fit)
-    return () => window.removeEventListener('resize', fit)
+    window.addEventListener('orientationchange', fit)
+    return () => {
+      window.removeEventListener('resize', fit)
+      window.removeEventListener('orientationchange', fit)
+    }
   }, [])
 
   const navigate = (id) => { if (SCREENS[id]) setScreen(id) }
@@ -28,7 +34,7 @@ export default function MzikiPrototype({ onExit }) {
   const Screen = SCREENS[screen] || OverviewScreen
 
   return (
-    <div style={{ minHeight: '100vh', width: '100%', background: '#003b34', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', overflowX: 'hidden' }}>
+    <div style={{ height: '100vh', width: '100vw', background: '#003b34', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
       <style>{`
         @keyframes protoPulse { 0% { transform: scale(.7); opacity:.55 } 80%,100% { transform: scale(2.4); opacity:0 } }
         .proto-pulse::before { content:''; position:absolute; inset:0; border-radius:50%; background:#d29b00; animation: protoPulse 2.6s cubic-bezier(.21,.61,.35,1) infinite; }
