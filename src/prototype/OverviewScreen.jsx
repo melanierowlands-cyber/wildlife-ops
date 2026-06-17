@@ -29,6 +29,15 @@ const TRACK = {
   buffalo: { title: 'Buffalo "Nkulu"', status: 'monitor', v: ['79%', '—', '14 yrs', '720kg', '02.55', 'C2'] },
   rhino: { title: 'White Rhino Pair', status: 'healthy', v: ['88%', 'SDR', 'Adult', '2,100kg', '04.15', 'A4'] },
 }
+// per-animal live position on its map (fractions of the map area)
+const MARKERS = {
+  lion: { fx: 0.40, fy: 0.56 },
+  cheetah: { fx: 0.62, fy: 0.41 },
+  elephant: { fx: 0.50, fy: 0.50 },
+  buffalo: { fx: 0.36, fy: 0.61 },
+  rhino: { fx: 0.57, fy: 0.46 },
+}
+const MAP = { left: 885, top: 303, w: 354.96, h: 383 }
 // HEALTH COLLAR AGE / WEIGHT LAST SEEN LOCATION — icon, label pos, value pos
 const VITALS = [
   { icon: 'vt-health.svg', ix: 905, iy: 692, isz: 13, lx: 929.08, ly: 692, vx: 924.44, vy: 711, label: 'HEALTH' },
@@ -77,9 +86,12 @@ export default function OverviewScreen({ onNavigate, active = 'overview', onOpen
   const [sel, setSel] = useState('elephant')
   const t = TRACK[sel]
   const titleColor = t.status === 'monitor' ? COL.gold : COL.healthy
+  const mk = MARKERS[sel] || MARKERS.elephant
+  const mkColor = t.status === 'monitor' ? '#e0a92a' : '#6aa329'
 
   return (
     <div style={{ position: 'relative', width: 1280, height: 832, background: COL.canvas, fontFamily: '"Hanken Grotesk", sans-serif', overflow: 'hidden' }}>
+      <style>{`@keyframes ovMapPulse{0%{transform:translate(-50%,-50%) scale(.6);opacity:.55}80%,100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}}`}</style>
       <Sidebar active="overview" onNavigate={onNavigate} />
       <TopBar title="Reserve Overview" />
 
@@ -99,8 +111,13 @@ export default function OverviewScreen({ onNavigate, active = 'overview', onOpen
       {/* panel + vitals base */}
       <div style={{ position: 'absolute', left: 881, top: 215, width: 363, height: 595, borderRadius: 21, background: COL.panel }} />
       <div style={{ position: 'absolute', left: 881, top: 684, width: 362, height: 126, borderBottomLeftRadius: 21, borderBottomRightRadius: 21, background: COL.panelStrong }} />
-      {/* map */}
-      <img src={`${A}/map.png`} alt="Live tracking map" style={{ position: 'absolute', left: 885, top: 303, width: 354.96, height: 383, objectFit: 'cover' }} />
+      {/* map — per-animal tracking view */}
+      <img src={`${A}/map-${sel}.jpg`} alt={`${t.title} tracking map`} style={{ position: 'absolute', left: MAP.left, top: MAP.top, width: MAP.w, height: MAP.h, objectFit: 'cover' }} />
+      {/* live position marker */}
+      <div style={{ position: 'absolute', left: MAP.left + mk.fx * MAP.w, top: MAP.top + mk.fy * MAP.h, width: 13, height: 13, pointerEvents: 'none' }}>
+        <span style={{ position: 'absolute', left: '50%', top: '50%', width: 13, height: 13, borderRadius: '50%', background: mkColor, animation: 'ovMapPulse 2.4s cubic-bezier(.21,.61,.35,1) infinite' }} />
+        <span style={{ position: 'absolute', left: '50%', top: '50%', width: 9, height: 9, transform: 'translate(-50%,-50%)', borderRadius: '50%', background: mkColor, border: '1.5px solid rgba(255,255,255,0.9)', boxShadow: `0 0 9px ${mkColor}` }} />
+      </div>
       {/* map legend (code overlay — sits in the map's bottom-left corner) */}
       <div style={{ position: 'absolute', left: 893, bottom: 154, width: 118, boxSizing: 'border-box', padding: '8px 11px 9px', borderRadius: 11, background: 'rgba(10,28,23,0.58)', backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)', display: 'flex', flexDirection: 'column', gap: 6, fontFamily: '"Hanken Grotesk", sans-serif' }}>
         <span style={{ fontSize: 8, fontWeight: 400, letterSpacing: '1.6px', color: 'rgba(244,241,234,0.62)' }}>LEGEND</span>
