@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { COL, A, PHOTOS, AnimatedValue, statusColor } from './shared'
+import { COL, A, PHOTOS, AnimatedValue, statusColor, mCard, mSection } from './shared'
 import { Sidebar, TopBar } from './Chrome'
 
 /* ════════════════════════════════════════════════════════════════
@@ -141,7 +141,97 @@ function Btn({ primary, children, onClick }) {
 
 const panelBase = { position: 'absolute', top: 77, height: 735, background: COL.panel, borderRadius: 21, overflow: 'hidden', boxSizing: 'border-box', fontFamily: HG }
 
-export default function AnimalHealthScreen({ onNavigate, onOpenModal }) {
+/* ════════════════════════ MOBILE ════════════════════════ */
+function MobileAnimalHealth({ onOpenModal }) {
+  const [sel, setSel] = useState('lion')
+  const a = ANIMALS.find((x) => x.key === sel)
+  const sc = statusColor(a.status)
+  const deltaColor = a.delta.startsWith('▲') ? COL.healthy : sc
+  const photo = PHOTOS[a.key]
+  const statusLabel = a.status === 'monitor' ? 'MONITORING' : a.status === 'critical' ? 'CRITICAL' : 'HEALTHY'
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, fontFamily: HG }}>
+      {/* roster — horizontal chips */}
+      <div className="mob-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto', margin: '0 -13px', padding: '0 13px 2px' }}>
+        {ANIMALS.map((x) => {
+          const on = x.key === sel
+          const short = x.name.replace(/"[^"]*"/g, '').replace(/\s+/g, ' ').trim()
+          return (
+            <button key={x.key} onClick={() => setSel(x.key)}
+              style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 8, padding: '5px 13px 5px 5px', borderRadius: 999, cursor: 'pointer', fontFamily: HG, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', border: on ? `1px solid ${COL.gold}` : '1px solid #cdcdbe', background: on ? COL.white2 : 'transparent', color: COL.ink }}>
+              <Avatar a={x} size={26} />
+              {short}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* profile */}
+      <div style={{ ...mCard, overflow: 'hidden' }}>
+        <div style={{ position: 'relative', height: 188, overflow: 'hidden' }}>
+          {photo ? <img src={photo} alt={a.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#0a5247,#003b34)' }} />}
+          <div style={{ position: 'absolute', left: 0, bottom: 0, width: '100%', height: 80, background: 'linear-gradient(180deg, rgba(0,41,36,0) 0%, rgba(0,41,36,0.85) 100%)' }} />
+          <p style={{ position: 'absolute', left: 15, bottom: 12, margin: 0, fontSize: 19, fontWeight: 600, color: COL.white }}>{a.name}</p>
+          <div style={{ position: 'absolute', right: 12, top: 12, padding: '4px 10px', borderRadius: 9, background: sc }}>
+            <span style={{ fontSize: 9.5, fontWeight: 600, color: COL.white, letterSpacing: '0.6px' }}>{statusLabel}</span>
+          </div>
+        </div>
+        <div key={sel} className="proto-fade" style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: '15px 15px 16px' }}>
+          <p style={{ margin: 0, fontSize: 11.5, color: COL.muted }}>{a.sub}</p>
+          <div style={{ background: COL.insetEdge, borderRadius: 12, overflow: 'hidden', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1 }}>
+            {a.vitals.map(([lab, val], i) => (
+              <div key={lab} style={{ background: COL.inset, padding: '10px 11px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <span style={{ fontSize: 8.5, fontWeight: 300, color: COL.muted, letterSpacing: '0.5px' }}>{lab}</span>
+                <span style={{ fontSize: 15, fontWeight: 600, color: i === 0 ? sc : COL.ink }}>{i === 0 ? <AnimatedValue value={val} duration={650} /> : val}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: 9, fontWeight: 300, color: COL.muted, letterSpacing: '0.6px' }}>HEALTH INDEX</span>
+            <span style={{ fontSize: 9.5, fontWeight: 600, color: deltaColor, textTransform: 'uppercase' }}>{a.delta}</span>
+          </div>
+          <TrendChart trend={a.trend} color={sc} />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            {MONTHS.map((m) => <span key={m} style={{ fontSize: 9, fontWeight: 300, color: COL.faint, letterSpacing: '0.6px' }}>{m}</span>)}
+          </div>
+          <p style={{ margin: 0, fontSize: 9, fontWeight: 300, color: COL.muted, letterSpacing: '0.6px' }}>CLINICAL NOTE</p>
+          <p style={{ margin: 0, fontSize: 11.5, color: COL.ink, lineHeight: 1.45 }}>{a.note}</p>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <Btn onClick={() => onOpenModal && onOpenModal('log', a.name)}>Log observation</Btn>
+            <Btn primary onClick={() => onOpenModal && onOpenModal('vet', a.name)}>Schedule vet</Btn>
+          </div>
+        </div>
+      </div>
+
+      {/* recent activity */}
+      <div style={{ ...mCard, padding: '15px 15px 16px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <span style={mSection}>Recent Activity</span>
+        <p style={{ margin: '0 0 10px', fontSize: 10.5, color: COL.muted }}>{a.name} · {a.tag}</p>
+        <div key={sel} className="proto-fade" style={{ display: 'flex', flexDirection: 'column' }}>
+          {a.activity.map(([time, txt], i) => {
+            const last = i === a.activity.length - 1
+            return (
+              <div key={i} style={{ display: 'flex', gap: 11, paddingBottom: last ? 0 : 16 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'stretch' }}>
+                  <span style={{ width: 9, height: 9, borderRadius: '50%', background: i === 0 ? sc : COL.healthy, flexShrink: 0, marginTop: 1 }} />
+                  {!last && <span style={{ flex: '1 0 0', width: 2, background: COL.insetEdge, marginTop: 3 }} />}
+                </div>
+                <div style={{ flex: '1 0 0', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3, color: COL.ink }}>
+                  <p style={{ margin: 0, fontSize: 10.5, fontWeight: 600 }}>{time}</p>
+                  <p style={{ margin: 0, fontSize: 11.5, lineHeight: 1.35 }}>{txt}</p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function AnimalHealthScreen({ onNavigate, onOpenModal, mobile }) {
+  if (mobile) return <MobileAnimalHealth onOpenModal={onOpenModal} />
   const [sel, setSel] = useState('lion')
   const a = ANIMALS.find((x) => x.key === sel)
   const sc = statusColor(a.status)

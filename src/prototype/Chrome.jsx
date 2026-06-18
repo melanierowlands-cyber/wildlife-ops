@@ -1,10 +1,54 @@
-import { COL, A, text } from './shared'
+import { COL, A, text, HG } from './shared'
 
 const NAV = [
   { id: 'overview', label: 'Overview', icon: 'nav-overview.svg', y: 171, lx: 110 },
   { id: 'animal', label: 'Animal Health', icon: 'nav-animal.svg', y: 239, lx: 110 },
   { id: 'dispatch', label: 'Team Dispatch', icon: 'nav-dispatch.svg', y: 307, lx: 112 },
 ]
+
+/* ── Mobile chrome ───────────────────────────────────────────────── */
+const MNAV = [
+  { id: 'overview', label: 'Overview', icon: 'nav-overview.svg' },
+  { id: 'animal', label: 'Health', icon: 'nav-animal.svg' },
+  { id: 'dispatch', label: 'Dispatch', icon: 'nav-dispatch.svg' },
+]
+
+export function MobileHeader({ title }) {
+  return (
+    <header style={{ position: 'sticky', top: 0, zIndex: 30, height: 56, background: COL.topbar, display: 'flex', alignItems: 'center', gap: 11, padding: '0 16px', boxShadow: '0 2px 10px -4px rgba(0,20,16,0.45)' }}>
+      <div style={{ width: 34, height: 34, borderRadius: 9, background: COL.canvas, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+        <img src={`${A}/logo-paw.png`} alt="" style={{ width: 22, height: 22, objectFit: 'contain' }} />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15, minWidth: 0 }}>
+        <span style={{ fontFamily: HG, fontSize: 15, fontWeight: 600, color: COL.white, letterSpacing: '0.4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</span>
+        <span style={{ fontFamily: HG, fontSize: 9.5, fontWeight: 300, color: 'rgba(255,255,255,0.78)', letterSpacing: '0.5px' }}>MZIKI · BIG 5 WILDLIFE OPS</span>
+      </div>
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
+        <span className="proto-pulse" style={{ position: 'relative', display: 'inline-block', width: 8, height: 8 }}>
+          <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: COL.gold }} />
+        </span>
+        <span style={{ fontFamily: HG, fontSize: 11, color: 'rgba(255,255,255,0.85)' }}>Live</span>
+      </div>
+    </header>
+  )
+}
+
+export function MobileTabBar({ active, onNavigate }) {
+  return (
+    <nav style={{ position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 40, paddingBottom: 'env(safe-area-inset-bottom)', background: COL.panel, borderTop: `1px solid ${COL.panelStrong}`, display: 'flex', boxShadow: '0 -4px 16px -8px rgba(0,20,16,0.4)' }}>
+      {MNAV.map((n) => {
+        const on = n.id === active
+        return (
+          <button key={n.id} onClick={() => onNavigate && onNavigate(n.id)}
+            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, height: 60, background: 'transparent', border: 'none', cursor: 'pointer' }}>
+            <img src={`${A}/${n.icon}`} alt="" style={{ width: 23, height: 23, opacity: on ? 1 : 0.45, transition: 'opacity .15s ease' }} />
+            <span style={{ fontFamily: HG, fontSize: 10.5, fontWeight: on ? 600 : 400, color: on ? COL.ink : COL.muted }}>{n.label}</span>
+          </button>
+        )
+      })}
+    </nav>
+  )
+}
 
 export function Sidebar({ active, onNavigate }) {
   const activeNav = NAV.find((n) => n.id === active) || NAV[0]

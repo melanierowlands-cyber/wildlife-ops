@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { COL, AnimatedValue } from './shared'
+import { COL, AnimatedValue, mCard, mSection } from './shared'
 import { Sidebar, TopBar } from './Chrome'
 
 /* ════════════════════════════════════════════════════════════════
@@ -93,7 +93,57 @@ function TaskItem({ t, onAssign }) {
   )
 }
 
-export default function TeamDispatchScreen({ onNavigate }) {
+/* ════════════════════════ MOBILE ════════════════════════ */
+function MobileTeamCard({ t }) {
+  return (
+    <div style={{ ...mCard, padding: '13px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <p style={{ margin: 0, fontFamily: HG, fontSize: 14.5, fontWeight: 600, color: COL.ink }}>{t.name}</p>
+        <Badge label={t.badge} color={BC[t.bc]} />
+      </div>
+      <p style={{ margin: 0, fontFamily: HG, fontSize: 11, color: COL.muted }}>{t.meta}</p>
+      <p style={{ margin: 0, fontFamily: HG, fontSize: 11.5, color: COL.ink, lineHeight: 1.35 }}>{t.task}</p>
+      <p style={{ margin: '2px 0 0', fontFamily: HG, fontSize: 10, fontWeight: 300, color: COL.muted }}>{t.footer}</p>
+    </div>
+  )
+}
+
+function MobileDispatch() {
+  const [tasks, setTasks] = useState(TASKS)
+  const openCount = tasks.filter((t) => !t.assigned).length
+  const assign = (id, team) => setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, assigned: team || t.suggest || 'Vet Unit' } : t)))
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, fontFamily: HG }}>
+      {/* stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        {STATS.map((s) => <StatCard key={s.label} {...s} />)}
+      </div>
+
+      {/* field teams */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={mSection}>Active Field Teams</span>
+          <span style={{ fontSize: 10, fontWeight: 600, color: COL.gold }}>6 / 8 DEPLOYED</span>
+        </div>
+        {TEAMS.map((t) => <MobileTeamCard key={t.name} t={t} />)}
+      </div>
+
+      {/* task assignment */}
+      <div style={{ ...mCard, padding: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={mSection}>Task Assignment</span>
+          <Badge label={`${openCount} OPEN`} color={COL.gold} small />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {tasks.map((t) => <TaskItem key={t.id} t={t} onAssign={assign} />)}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function TeamDispatchScreen({ onNavigate, mobile }) {
+  if (mobile) return <MobileDispatch />
   const [tasks, setTasks] = useState(TASKS)
   const [toast, setToast] = useState(null)
   const openCount = tasks.filter((t) => !t.assigned).length

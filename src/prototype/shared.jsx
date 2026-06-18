@@ -11,6 +11,26 @@ export const COL = {
 export const A = '/proto/ov'
 export const REDUCED = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+/* mobile breakpoint — phones get a dedicated stacked layout */
+export const MOBILE_Q = '(max-width: 760px)'
+export function useIsMobile() {
+  const get = () => typeof window !== 'undefined' && window.matchMedia && window.matchMedia(MOBILE_Q).matches
+  const [m, setM] = useState(get)
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_Q)
+    const on = () => setM(mq.matches)
+    on()
+    mq.addEventListener ? mq.addEventListener('change', on) : mq.addListener(on)
+    return () => (mq.removeEventListener ? mq.removeEventListener('change', on) : mq.removeListener(on))
+  }, [])
+  return m
+}
+
+/* shared mobile UI tokens */
+export const HG = '"Hanken Grotesk", sans-serif'
+export const mCard = { background: COL.panel, borderRadius: 18, boxSizing: 'border-box' }
+export const mSection = { fontSize: 11, fontWeight: 300, letterSpacing: '1.1px', color: COL.label, textTransform: 'uppercase' }
+
 function fmt(n, decimals, grouped) {
   const fixed = decimals > 0 ? n.toFixed(decimals) : String(Math.round(n))
   if (!grouped) return fixed

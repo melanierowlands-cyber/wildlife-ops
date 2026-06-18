@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { COL, A, AnimatedValue, text } from './shared'
+import { COL, A, AnimatedValue, text, HG, mCard, mSection } from './shared'
 import { Sidebar, TopBar } from './Chrome'
 
 /* ════════════════════════════════════════════════════════════════
@@ -82,7 +82,102 @@ function AnimalRow({ row, selected, onSelect }) {
   )
 }
 
-export default function OverviewScreen({ onNavigate, active = 'overview', onOpenModal }) {
+/* ════════════════════════ MOBILE ════════════════════════ */
+function MobileOverview() {
+  const [sel, setSel] = useState('elephant')
+  const t = TRACK[sel]
+  const mk = MARKERS[sel] || MARKERS.elephant
+  const mkColor = t.status === 'monitor' ? '#e0a92a' : '#6aa329'
+  const titleColor = t.status === 'monitor' ? COL.gold : COL.healthy
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, fontFamily: HG }}>
+      {/* KPIs — horizontal scroll */}
+      <div className="mob-scroll" style={{ display: 'flex', gap: 10, overflowX: 'auto', margin: '0 -13px', padding: '0 13px 2px' }}>
+        {KPIS.map((k) => (
+          <div key={k.label} style={{ flex: '0 0 150px', background: COL.stat, borderRadius: 16, padding: '13px 14px', color: COL.white }}>
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap' }}>{k.label}</p>
+            <p style={{ margin: '5px 0 0', fontSize: 24, fontWeight: 400 }}><AnimatedValue value={k.value} /></p>
+            <p style={{ margin: '3px 0 0', fontSize: 11, fontWeight: 500 }}>{k.delta}</p>
+            <p style={{ margin: '1px 0 0', fontSize: 9.5, fontWeight: 300, opacity: 0.82 }}>{k.note}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Tracking card */}
+      <div style={{ ...mCard, padding: 12, display: 'flex', flexDirection: 'column', gap: 11 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={mSection}>Live Animal Tracking</span>
+          <span style={{ fontSize: 9.5, fontWeight: 600, color: COL.gold, letterSpacing: '0.5px' }}>MZIKI · 6000 HA</span>
+        </div>
+        {/* animal chips */}
+        <div className="mob-scroll" style={{ display: 'flex', gap: 7, overflowX: 'auto', margin: '0 -12px', padding: '0 12px 2px' }}>
+          {ROWS.map((r) => {
+            const on = r.key === sel
+            return (
+              <button key={r.key} onClick={() => setSel(r.key)}
+                style={{ flex: '0 0 auto', padding: '6px 13px', borderRadius: 999, cursor: 'pointer', fontFamily: HG, fontSize: 11.5, fontWeight: 600, whiteSpace: 'nowrap', border: on ? `1px solid ${COL.gold}` : '1px solid #cdcdbe', background: on ? COL.gold : COL.white2, color: on ? COL.white : COL.ink, transition: 'background .12s ease' }}>
+                {r.name.replace(/ (Pride|Herd|Bull|Pair).*/, '').replace(/"/g, '')}
+              </button>
+            )
+          })}
+        </div>
+        {/* map */}
+        <div style={{ position: 'relative', width: '100%', aspectRatio: '355 / 300', borderRadius: 12, overflow: 'hidden', background: '#10271f' }}>
+          <img src={`${A}/map-${sel}.jpg`} alt={`${t.title} tracking map`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <span style={{ position: 'absolute', left: 12, top: 11, fontFamily: HG, fontSize: 13, fontWeight: 600, color: titleColor, letterSpacing: '0.8px', textTransform: 'uppercase', textShadow: '0 1px 6px rgba(0,0,0,0.65)' }}>{t.title}</span>
+          <div style={{ position: 'absolute', left: `${mk.fx * 100}%`, top: `${mk.fy * 100}%`, width: 13, height: 13, pointerEvents: 'none' }}>
+            <span style={{ position: 'absolute', left: '50%', top: '50%', width: 13, height: 13, borderRadius: '50%', background: mkColor, animation: 'ovMapPulse 2.4s cubic-bezier(.21,.61,.35,1) infinite' }} />
+            <span style={{ position: 'absolute', left: '50%', top: '50%', width: 9, height: 9, transform: 'translate(-50%,-50%)', borderRadius: '50%', background: mkColor, border: '1.5px solid rgba(255,255,255,0.9)', boxShadow: `0 0 9px ${mkColor}` }} />
+          </div>
+          <div style={{ position: 'absolute', left: 10, bottom: 10, padding: '7px 10px 8px', borderRadius: 10, background: 'rgba(10,28,23,0.6)', display: 'flex', flexDirection: 'column', gap: 5 }}>
+            <span style={{ fontSize: 7.5, letterSpacing: '1.4px', color: 'rgba(244,241,234,0.62)' }}>LEGEND</span>
+            {[['#6aa329', 'Healthy / tracked'], ['#e0a92a', 'Monitoring'], ['#c8593a', 'Critical alert'], ['#5b9bd5', 'Field team']].map(([c, l]) => (
+              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: c }} />
+                <span style={{ fontSize: 8.5, color: '#f4f1ea', whiteSpace: 'nowrap' }}>{l}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* vitals */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: COL.insetEdge, borderRadius: 12, overflow: 'hidden' }}>
+          {VITALS.map((vt, i) => (
+            <div key={vt.label} style={{ background: COL.inset, padding: '10px 11px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <span style={{ fontSize: 8.5, fontWeight: 300, color: COL.muted, letterSpacing: '0.5px' }}>{vt.label}</span>
+              <span style={{ fontSize: 15, fontWeight: 600, color: i === 0 ? titleColor : COL.ink }}>{t.v[i]}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Animal list */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <span style={mSection}>Tracked Animals</span>
+        {ROWS.map((r) => {
+          const healthy = r.status === 'healthy'
+          return (
+            <div key={r.key} onClick={() => setSel(r.key)} style={{ ...mCard, display: 'flex', overflow: 'hidden', cursor: 'pointer', border: r.key === sel ? `1.5px solid ${COL.gold}` : '1.5px solid transparent' }}>
+              <div style={{ width: 94, flexShrink: 0, alignSelf: 'stretch', overflow: 'hidden' }}>
+                <img src={`${A}/${r.photo}`} alt={r.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0, padding: '11px 12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <p style={{ margin: 0, fontSize: 13.5, fontWeight: 600, color: COL.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</p>
+                  <span style={{ flexShrink: 0, padding: '3px 8px', borderRadius: 8, background: healthy ? COL.healthy : COL.monitor, fontSize: 8.5, fontWeight: 600, color: COL.white, letterSpacing: '0.5px' }}>{healthy ? 'HEALTHY' : 'MONITORING'}</span>
+                </div>
+                <p style={{ margin: '2px 0 0', fontSize: 11, color: COL.muted }}>{r.tag}</p>
+                <p style={{ margin: '6px 0 0', fontSize: 11, color: COL.ink, lineHeight: 1.35 }}>{r.desc}</p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+export default function OverviewScreen({ onNavigate, active = 'overview', onOpenModal, mobile }) {
+  if (mobile) return <MobileOverview />
   const [sel, setSel] = useState('elephant')
   const t = TRACK[sel]
   const titleColor = t.status === 'monitor' ? COL.gold : COL.healthy
