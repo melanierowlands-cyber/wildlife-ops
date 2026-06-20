@@ -126,7 +126,7 @@ function MobileOverview({ mode }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: tablet ? 18 : 16, fontFamily: HG }}>
       {/* KPIs */}
       {tablet ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>{kpiCards}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: 12 }}>{kpiCards}</div>
       ) : (
         <div style={{ position: 'relative' }}>
           <div ref={kpiRef} onScroll={updateArrows} className="mob-scroll" style={{ display: 'flex', gap: 10, overflowX: 'auto', margin: '0 -13px', padding: '0 13px 2px' }}>{kpiCards}</div>
@@ -135,7 +135,7 @@ function MobileOverview({ mode }) {
         </div>
       )}
 
-      <div style={tablet ? { display: 'grid', gridTemplateColumns: '1.12fr 0.88fr', gap: 16, alignItems: 'start' } : { display: 'contents' }}>
+      <div style={tablet ? { display: 'grid', gridTemplateColumns: 'minmax(0, 1.12fr) minmax(0, 0.88fr)', gap: 16, alignItems: 'start' } : { display: 'contents' }}>
       {/* Tracking card */}
       <div style={{ ...mCard, padding: 12, display: 'flex', flexDirection: 'column', gap: 11 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -185,7 +185,7 @@ function MobileOverview({ mode }) {
 
       {/* Animal list */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <span style={mSection}>Tracked Animals</span>
+        {!tablet && <span style={mSection}>Tracked Animals</span>}
         {ROWS.map((r) => {
           const healthy = r.status === 'healthy'
           return (
@@ -195,7 +195,7 @@ function MobileOverview({ mode }) {
               </div>
               <div style={{ flex: 1, minWidth: 0, padding: '11px 12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                  <p style={{ margin: 0, fontSize: 13.5, fontWeight: 600, color: COL.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</p>
+                  <p style={{ margin: 0, minWidth: 0, flex: '0 1 auto', fontSize: 13.5, fontWeight: 600, color: COL.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</p>
                   <span style={{ flexShrink: 0, padding: '3px 8px', borderRadius: 8, background: healthy ? COL.healthy : COL.monitor, fontSize: 8.5, fontWeight: 600, color: COL.white, letterSpacing: '0.5px' }}>{healthy ? 'HEALTHY' : 'MONITORING'}</span>
                 </div>
                 <p style={{ margin: '2px 0 0', fontSize: 11, color: COL.muted }}>{r.tag}</p>

@@ -116,7 +116,7 @@ function MobileDispatch({ mode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: tablet ? 18 : 16, fontFamily: HG }}>
       {/* stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: tablet ? 'repeat(4, 1fr)' : '1fr 1fr', gap: tablet ? 12 : 10 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: tablet ? 'repeat(4, minmax(0, 1fr))' : 'repeat(2, minmax(0, 1fr))', gap: tablet ? 12 : 10 }}>
         {STATS.map((s) => <StatCard key={s.label} {...s} />)}
       </div>
 
@@ -126,7 +126,7 @@ function MobileDispatch({ mode }) {
           <span style={mSection}>Active Field Teams</span>
           <span style={{ fontSize: 10, fontWeight: 600, color: COL.gold }}>6 / 8 DEPLOYED</span>
         </div>
-        <div style={tablet ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 } : { display: 'contents' }}>
+        <div style={tablet ? { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 } : { display: 'contents' }}>
           {TEAMS.map((t) => <MobileTeamCard key={t.name} t={t} />)}
         </div>
       </div>
@@ -137,7 +137,7 @@ function MobileDispatch({ mode }) {
           <span style={mSection}>Task Assignment</span>
           <Badge label={`${openCount} OPEN`} color={COL.gold} small />
         </div>
-        <div style={tablet ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } : { display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={tablet ? { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 } : { display: 'flex', flexDirection: 'column', gap: 8 }}>
           {tasks.map((t) => <TaskItem key={t.id} t={t} onAssign={assign} />)}
         </div>
       </div>

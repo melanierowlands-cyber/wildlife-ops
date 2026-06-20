@@ -167,7 +167,7 @@ function MobileAnimalHealth({ onOpenModal, mode }) {
         })}
       </div>
 
-      <div style={tablet ? { display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 16, alignItems: 'start' } : { display: 'contents' }}>
+      <div style={tablet ? { display: 'grid', gridTemplateColumns: 'minmax(0, 1.1fr) minmax(0, 0.9fr)', gap: 16, alignItems: 'start' } : { display: 'contents' }}>
       {/* profile */}
       <div style={{ ...mCard, overflow: 'hidden' }}>
         <div style={{ position: 'relative', height: 188, overflow: 'hidden' }}>
