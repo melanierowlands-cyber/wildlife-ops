@@ -159,7 +159,7 @@ function MobileAnimalHealth({ onOpenModal, mode }) {
           const short = x.name.replace(/"[^"]*"/g, '').replace(/\s+/g, ' ').trim()
           return (
             <button key={x.key} onClick={() => setSel(x.key)}
-              style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 8, padding: '5px 13px 5px 5px', borderRadius: 999, cursor: 'pointer', fontFamily: HG, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', border: on ? `1px solid ${COL.gold}` : '1px solid #cdcdbe', background: on ? COL.white2 : 'transparent', color: COL.ink }}>
+              style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 8, padding: '5px 13px 5px 5px', borderRadius: 999, cursor: 'pointer', fontFamily: HG, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', border: on ? `1px solid ${COL.gold}` : '1px solid rgba(255,255,255,0.35)', background: on ? COL.white2 : 'transparent', color: on ? COL.ink : COL.white }}>
               <Avatar a={x} size={26} />
               {short}
             </button>

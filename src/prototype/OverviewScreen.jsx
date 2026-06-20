@@ -100,20 +100,22 @@ function MobileOverview({ mode }) {
   const mkColor = t.status === 'monitor' ? '#e0a92a' : '#6aa329'
   const titleColor = t.status === 'monitor' ? COL.gold : COL.healthy
   const kpiRef = useRef(null)
+  const chipRef = useRef(null)
   const [canL, setCanL] = useState(false)
   const [canR, setCanR] = useState(true)
-  const updateArrows = () => {
-    const el = kpiRef.current
-    if (!el) return
-    setCanL(el.scrollLeft > 4)
-    setCanR(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
+  const [chipL, setChipL] = useState(false)
+  const [chipR, setChipR] = useState(true)
+  const edge = (el) => (el ? [el.scrollLeft > 4, el.scrollLeft + el.clientWidth < el.scrollWidth - 4] : null)
+  const measure = () => {
+    const k = edge(kpiRef.current); if (k) { setCanL(k[0]); setCanR(k[1]) }
+    const c = edge(chipRef.current); if (c) { setChipL(c[0]); setChipR(c[1]) }
   }
   useEffect(() => {
-    updateArrows()
-    window.addEventListener('resize', updateArrows)
-    return () => window.removeEventListener('resize', updateArrows)
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
   }, [])
-  const scrollKpis = (dx) => kpiRef.current && kpiRef.current.scrollBy({ left: dx, behavior: 'smooth' })
+  const scrollEl = (ref, dx) => ref.current && ref.current.scrollBy({ left: dx, behavior: 'smooth' })
   const kpiCards = KPIS.map((k) => (
     <div key={k.label} style={{ flex: tablet ? '1 1 0' : '0 0 150px', minWidth: 0, background: COL.stat, borderRadius: 16, padding: '13px 14px', color: COL.white }}>
       <p style={{ margin: 0, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap' }}>{k.label}</p>
@@ -129,9 +131,9 @@ function MobileOverview({ mode }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: 12 }}>{kpiCards}</div>
       ) : (
         <div style={{ position: 'relative' }}>
-          <div ref={kpiRef} onScroll={updateArrows} className="mob-scroll" style={{ display: 'flex', gap: 10, overflowX: 'auto', margin: '0 -13px', padding: '0 13px 2px' }}>{kpiCards}</div>
-          <KpiChevron dir="left" show={canL} onClick={() => scrollKpis(-170)} />
-          <KpiChevron dir="right" show={canR} onClick={() => scrollKpis(170)} />
+          <div ref={kpiRef} onScroll={measure} className="mob-scroll" style={{ display: 'flex', gap: 10, overflowX: 'auto', margin: '0 -13px', padding: '0 13px 2px' }}>{kpiCards}</div>
+          <KpiChevron dir="left" show={canL} onClick={() => scrollEl(kpiRef, -170)} />
+          <KpiChevron dir="right" show={canR} onClick={() => scrollEl(kpiRef, 170)} />
         </div>
       )}
 
@@ -143,7 +145,8 @@ function MobileOverview({ mode }) {
           <span style={{ fontSize: 9.5, fontWeight: 600, color: COL.gold, letterSpacing: '0.5px' }}>MZIKI · 6000 HA</span>
         </div>
         {/* animal chips */}
-        <div className="mob-scroll" style={{ display: 'flex', gap: 7, overflowX: 'auto', margin: '0 -12px', padding: '0 12px 2px' }}>
+        <div style={{ position: 'relative' }}>
+          <div ref={chipRef} onScroll={measure} className="mob-scroll" style={{ display: 'flex', gap: 7, overflowX: 'auto', margin: '0 -12px', padding: '0 12px 2px' }}>
           {ROWS.map((r) => {
             const on = r.key === sel
             return (
@@ -153,6 +156,9 @@ function MobileOverview({ mode }) {
               </button>
             )
           })}
+          </div>
+          <KpiChevron dir="left" show={chipL} onClick={() => scrollEl(chipRef, -150)} />
+          <KpiChevron dir="right" show={chipR} onClick={() => scrollEl(chipRef, 150)} />
         </div>
         {/* map */}
         <div style={{ position: 'relative', width: '100%', aspectRatio: '355 / 300', borderRadius: 12, overflow: 'hidden', background: '#10271f' }}>
