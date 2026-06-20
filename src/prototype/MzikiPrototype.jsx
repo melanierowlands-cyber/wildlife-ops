@@ -3,7 +3,7 @@ import OverviewScreen from './OverviewScreen'
 import AnimalHealthScreen from './AnimalHealthScreen'
 import TeamDispatchScreen from './TeamDispatchScreen'
 import ModalHost from './Modals'
-import { useIsMobile, COL, HG } from './shared'
+import { useViewportMode, COL, HG } from './shared'
 import { MobileHeader, MobileTabBar } from './Chrome'
 
 /* Pixel-faithful Mziki prototype shell.
@@ -51,21 +51,23 @@ export default function MzikiPrototype({ onExit }) {
   const closeModal = () => setModal(null)
   const submitModal = (msg) => { setModal(null); setToast(msg); clearTimeout(submitModal._t); submitModal._t = setTimeout(() => setToast(null), 2800) }
   const Screen = SCREENS[screen] || OverviewScreen
-  const isMobile = useIsMobile()
+  const mode = useViewportMode()
+  const fluid = mode !== 'desktop'
 
   const Toast = (
-    <div style={{ position: 'fixed', left: '50%', bottom: isMobile ? 80 : 24, zIndex: 70, transform: `translateX(-50%) translateY(${toast ? 0 : 12}px)`, opacity: toast ? 1 : 0, transition: 'opacity .2s ease, transform .2s ease', pointerEvents: 'none', background: 'rgba(0,40,34,0.94)', color: '#f4f1ea', padding: '11px 20px', borderRadius: 999, fontFamily: '"Hanken Grotesk", sans-serif', fontSize: 14, fontWeight: 500, whiteSpace: 'nowrap', maxWidth: '90vw', overflow: 'hidden', textOverflow: 'ellipsis', boxShadow: '0 10px 28px -10px rgba(0,0,0,0.5)', border: '1px solid #d29b00' }}>
+    <div style={{ position: 'fixed', left: '50%', bottom: fluid ? 80 : 24, zIndex: 70, transform: `translateX(-50%) translateY(${toast ? 0 : 12}px)`, opacity: toast ? 1 : 0, transition: 'opacity .2s ease, transform .2s ease', pointerEvents: 'none', background: 'rgba(0,40,34,0.94)', color: '#f4f1ea', padding: '11px 20px', borderRadius: 999, fontFamily: '"Hanken Grotesk", sans-serif', fontSize: 14, fontWeight: 500, whiteSpace: 'nowrap', maxWidth: '90vw', overflow: 'hidden', textOverflow: 'ellipsis', boxShadow: '0 10px 28px -10px rgba(0,0,0,0.5)', border: '1px solid #d29b00' }}>
       {toast || ''}
     </div>
   )
 
-  if (isMobile) {
+  if (fluid) {
+    const pad = mode === 'tablet' ? '20px 22px calc(80px + env(safe-area-inset-bottom))' : '14px 13px calc(78px + env(safe-area-inset-bottom))'
     return (
       <div style={{ minHeight: '100vh', width: '100%', background: COL.canvas, fontFamily: HG }}>
         <style>{KEYFRAMES}</style>
         <MobileHeader title={TITLES[screen]} />
-        <main style={{ padding: '14px 13px calc(78px + env(safe-area-inset-bottom))' }}>
-          <Screen onNavigate={navigate} active={screen} onOpenModal={openModal} mobile />
+        <main style={{ padding: pad, maxWidth: 1100, margin: '0 auto' }}>
+          <Screen onNavigate={navigate} active={screen} onOpenModal={openModal} mobile mode={mode} />
         </main>
         <MobileTabBar active={screen} onNavigate={navigate} />
         <ModalHost modal={modal} onClose={closeModal} onSubmit={submitModal} />

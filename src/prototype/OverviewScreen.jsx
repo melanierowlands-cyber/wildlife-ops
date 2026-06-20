@@ -82,19 +82,20 @@ function AnimalRow({ row, selected, onSelect }) {
   )
 }
 
-/* ════════════════════════ MOBILE ════════════════════════ */
-function MobileOverview() {
+/* ════════════════════════ MOBILE / TABLET ════════════════════════ */
+function MobileOverview({ mode }) {
+  const tablet = mode === 'tablet'
   const [sel, setSel] = useState('elephant')
   const t = TRACK[sel]
   const mk = MARKERS[sel] || MARKERS.elephant
   const mkColor = t.status === 'monitor' ? '#e0a92a' : '#6aa329'
   const titleColor = t.status === 'monitor' ? COL.gold : COL.healthy
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, fontFamily: HG }}>
-      {/* KPIs — horizontal scroll */}
-      <div className="mob-scroll" style={{ display: 'flex', gap: 10, overflowX: 'auto', margin: '0 -13px', padding: '0 13px 2px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: tablet ? 18 : 16, fontFamily: HG }}>
+      {/* KPIs */}
+      <div className="mob-scroll" style={tablet ? { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 } : { display: 'flex', gap: 10, overflowX: 'auto', margin: '0 -13px', padding: '0 13px 2px' }}>
         {KPIS.map((k) => (
-          <div key={k.label} style={{ flex: '0 0 150px', background: COL.stat, borderRadius: 16, padding: '13px 14px', color: COL.white }}>
+          <div key={k.label} style={{ flex: tablet ? '1 1 0' : '0 0 150px', minWidth: 0, background: COL.stat, borderRadius: 16, padding: '13px 14px', color: COL.white }}>
             <p style={{ margin: 0, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap' }}>{k.label}</p>
             <p style={{ margin: '5px 0 0', fontSize: 24, fontWeight: 400 }}><AnimatedValue value={k.value} /></p>
             <p style={{ margin: '3px 0 0', fontSize: 11, fontWeight: 500 }}>{k.delta}</p>
@@ -103,6 +104,7 @@ function MobileOverview() {
         ))}
       </div>
 
+      <div style={tablet ? { display: 'grid', gridTemplateColumns: '1.12fr 0.88fr', gap: 16, alignItems: 'start' } : { display: 'contents' }}>
       {/* Tracking card */}
       <div style={{ ...mCard, padding: 12, display: 'flex', flexDirection: 'column', gap: 11 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -172,12 +174,13 @@ function MobileOverview() {
           )
         })}
       </div>
+      </div>
     </div>
   )
 }
 
-export default function OverviewScreen({ onNavigate, active = 'overview', onOpenModal, mobile }) {
-  if (mobile) return <MobileOverview />
+export default function OverviewScreen({ onNavigate, active = 'overview', onOpenModal, mobile, mode }) {
+  if (mobile) return <MobileOverview mode={mode} />
   const [sel, setSel] = useState('elephant')
   const t = TRACK[sel]
   const titleColor = t.status === 'monitor' ? COL.gold : COL.healthy

@@ -142,7 +142,8 @@ function Btn({ primary, children, onClick }) {
 const panelBase = { position: 'absolute', top: 77, height: 735, background: COL.panel, borderRadius: 21, overflow: 'hidden', boxSizing: 'border-box', fontFamily: HG }
 
 /* ════════════════════════ MOBILE ════════════════════════ */
-function MobileAnimalHealth({ onOpenModal }) {
+function MobileAnimalHealth({ onOpenModal, mode }) {
+  const tablet = mode === 'tablet'
   const [sel, setSel] = useState('lion')
   const a = ANIMALS.find((x) => x.key === sel)
   const sc = statusColor(a.status)
@@ -150,7 +151,7 @@ function MobileAnimalHealth({ onOpenModal }) {
   const photo = PHOTOS[a.key]
   const statusLabel = a.status === 'monitor' ? 'MONITORING' : a.status === 'critical' ? 'CRITICAL' : 'HEALTHY'
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, fontFamily: HG }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: tablet ? 18 : 16, fontFamily: HG }}>
       {/* roster — horizontal chips */}
       <div className="mob-scroll" style={{ display: 'flex', gap: 8, overflowX: 'auto', margin: '0 -13px', padding: '0 13px 2px' }}>
         {ANIMALS.map((x) => {
@@ -166,6 +167,7 @@ function MobileAnimalHealth({ onOpenModal }) {
         })}
       </div>
 
+      <div style={tablet ? { display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 16, alignItems: 'start' } : { display: 'contents' }}>
       {/* profile */}
       <div style={{ ...mCard, overflow: 'hidden' }}>
         <div style={{ position: 'relative', height: 188, overflow: 'hidden' }}>
@@ -226,12 +228,13 @@ function MobileAnimalHealth({ onOpenModal }) {
           })}
         </div>
       </div>
+      </div>
     </div>
   )
 }
 
-export default function AnimalHealthScreen({ onNavigate, onOpenModal, mobile }) {
-  if (mobile) return <MobileAnimalHealth onOpenModal={onOpenModal} />
+export default function AnimalHealthScreen({ onNavigate, onOpenModal, mobile, mode }) {
+  if (mobile) return <MobileAnimalHealth onOpenModal={onOpenModal} mode={mode} />
   const [sel, setSel] = useState('lion')
   const a = ANIMALS.find((x) => x.key === sel)
   const sc = statusColor(a.status)

@@ -108,14 +108,15 @@ function MobileTeamCard({ t }) {
   )
 }
 
-function MobileDispatch() {
+function MobileDispatch({ mode }) {
+  const tablet = mode === 'tablet'
   const [tasks, setTasks] = useState(TASKS)
   const openCount = tasks.filter((t) => !t.assigned).length
   const assign = (id, team) => setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, assigned: team || t.suggest || 'Vet Unit' } : t)))
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, fontFamily: HG }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: tablet ? 18 : 16, fontFamily: HG }}>
       {/* stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: tablet ? 'repeat(4, 1fr)' : '1fr 1fr', gap: tablet ? 12 : 10 }}>
         {STATS.map((s) => <StatCard key={s.label} {...s} />)}
       </div>
 
@@ -125,16 +126,18 @@ function MobileDispatch() {
           <span style={mSection}>Active Field Teams</span>
           <span style={{ fontSize: 10, fontWeight: 600, color: COL.gold }}>6 / 8 DEPLOYED</span>
         </div>
-        {TEAMS.map((t) => <MobileTeamCard key={t.name} t={t} />)}
+        <div style={tablet ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 } : { display: 'contents' }}>
+          {TEAMS.map((t) => <MobileTeamCard key={t.name} t={t} />)}
+        </div>
       </div>
 
       {/* task assignment */}
-      <div style={{ ...mCard, padding: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ ...mCard, padding: tablet ? 16 : 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={mSection}>Task Assignment</span>
           <Badge label={`${openCount} OPEN`} color={COL.gold} small />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={tablet ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } : { display: 'flex', flexDirection: 'column', gap: 8 }}>
           {tasks.map((t) => <TaskItem key={t.id} t={t} onAssign={assign} />)}
         </div>
       </div>
@@ -142,8 +145,8 @@ function MobileDispatch() {
   )
 }
 
-export default function TeamDispatchScreen({ onNavigate, mobile }) {
-  if (mobile) return <MobileDispatch />
+export default function TeamDispatchScreen({ onNavigate, mobile, mode }) {
+  if (mobile) return <MobileDispatch mode={mode} />
   const [tasks, setTasks] = useState(TASKS)
   const [toast, setToast] = useState(null)
   const openCount = tasks.filter((t) => !t.assigned).length

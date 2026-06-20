@@ -11,19 +11,30 @@ export const COL = {
 export const A = '/proto/ov'
 export const REDUCED = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-/* mobile breakpoint — phones get a dedicated stacked layout */
-export const MOBILE_Q = '(max-width: 760px)'
-export function useIsMobile() {
-  const get = () => typeof window !== 'undefined' && window.matchMedia && window.matchMedia(MOBILE_Q).matches
-  const [m, setM] = useState(get)
+/* Responsive tiers:
+   phone   (<760px)        → single-column fluid layout
+   tablet  (760–1199px)    → multi-column fluid layout (iPads)
+   desktop (≥1200px)       → pixel-faithful 1280×832 artboard */
+export const TABLET_MAX = 1200
+export const PHONE_MAX = 760
+export function useViewportMode() {
+  const get = () => {
+    if (typeof window === 'undefined') return 'desktop'
+    const w = window.innerWidth
+    return w < PHONE_MAX ? 'phone' : w < TABLET_MAX ? 'tablet' : 'desktop'
+  }
+  const [mode, setMode] = useState(get)
   useEffect(() => {
-    const mq = window.matchMedia(MOBILE_Q)
-    const on = () => setM(mq.matches)
+    const on = () => setMode(get())
     on()
-    mq.addEventListener ? mq.addEventListener('change', on) : mq.addListener(on)
-    return () => (mq.removeEventListener ? mq.removeEventListener('change', on) : mq.removeListener(on))
+    window.addEventListener('resize', on)
+    window.addEventListener('orientationchange', on)
+    return () => {
+      window.removeEventListener('resize', on)
+      window.removeEventListener('orientationchange', on)
+    }
   }, [])
-  return m
+  return mode
 }
 
 /* shared mobile UI tokens */
