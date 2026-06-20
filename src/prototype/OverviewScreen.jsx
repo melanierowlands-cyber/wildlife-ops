@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { COL, A, AnimatedValue, text, HG, mCard, mSection } from './shared'
 import { Sidebar, TopBar } from './Chrome'
 
@@ -83,6 +83,15 @@ function AnimalRow({ row, selected, onSelect }) {
 }
 
 /* ════════════════════════ MOBILE / TABLET ════════════════════════ */
+function KpiChevron({ dir, show, onClick }) {
+  return (
+    <button onClick={onClick} aria-label={dir === 'left' ? 'Scroll left' : 'Scroll right'}
+      style={{ position: 'absolute', top: '50%', [dir]: 2, transform: 'translateY(-50%)', zIndex: 3, width: 30, height: 30, borderRadius: 999, border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,45,38,0.74)', color: '#f4f1ea', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px -4px rgba(0,0,0,0.5)', opacity: show ? 1 : 0, pointerEvents: show ? 'auto' : 'none', transition: 'opacity .2s ease' }}>
+      <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d={dir === 'left' ? 'M6.5 1.5L2 6.5L6.5 11.5' : 'M1.5 1.5L6 6.5L1.5 11.5'} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+    </button>
+  )
+}
+
 function MobileOverview({ mode }) {
   const tablet = mode === 'tablet'
   const [sel, setSel] = useState('elephant')
@@ -90,19 +99,41 @@ function MobileOverview({ mode }) {
   const mk = MARKERS[sel] || MARKERS.elephant
   const mkColor = t.status === 'monitor' ? '#e0a92a' : '#6aa329'
   const titleColor = t.status === 'monitor' ? COL.gold : COL.healthy
+  const kpiRef = useRef(null)
+  const [canL, setCanL] = useState(false)
+  const [canR, setCanR] = useState(true)
+  const updateArrows = () => {
+    const el = kpiRef.current
+    if (!el) return
+    setCanL(el.scrollLeft > 4)
+    setCanR(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
+  }
+  useEffect(() => {
+    updateArrows()
+    window.addEventListener('resize', updateArrows)
+    return () => window.removeEventListener('resize', updateArrows)
+  }, [])
+  const scrollKpis = (dx) => kpiRef.current && kpiRef.current.scrollBy({ left: dx, behavior: 'smooth' })
+  const kpiCards = KPIS.map((k) => (
+    <div key={k.label} style={{ flex: tablet ? '1 1 0' : '0 0 150px', minWidth: 0, background: COL.stat, borderRadius: 16, padding: '13px 14px', color: COL.white }}>
+      <p style={{ margin: 0, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap' }}>{k.label}</p>
+      <p style={{ margin: '5px 0 0', fontSize: 24, fontWeight: 400 }}><AnimatedValue value={k.value} /></p>
+      <p style={{ margin: '3px 0 0', fontSize: 11, fontWeight: 500 }}>{k.delta}</p>
+      <p style={{ margin: '1px 0 0', fontSize: 9.5, fontWeight: 300, opacity: 0.82 }}>{k.note}</p>
+    </div>
+  ))
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: tablet ? 18 : 16, fontFamily: HG }}>
       {/* KPIs */}
-      <div className="mob-scroll" style={tablet ? { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 } : { display: 'flex', gap: 10, overflowX: 'auto', margin: '0 -13px', padding: '0 13px 2px' }}>
-        {KPIS.map((k) => (
-          <div key={k.label} style={{ flex: tablet ? '1 1 0' : '0 0 150px', minWidth: 0, background: COL.stat, borderRadius: 16, padding: '13px 14px', color: COL.white }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap' }}>{k.label}</p>
-            <p style={{ margin: '5px 0 0', fontSize: 24, fontWeight: 400 }}><AnimatedValue value={k.value} /></p>
-            <p style={{ margin: '3px 0 0', fontSize: 11, fontWeight: 500 }}>{k.delta}</p>
-            <p style={{ margin: '1px 0 0', fontSize: 9.5, fontWeight: 300, opacity: 0.82 }}>{k.note}</p>
-          </div>
-        ))}
-      </div>
+      {tablet ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>{kpiCards}</div>
+      ) : (
+        <div style={{ position: 'relative' }}>
+          <div ref={kpiRef} onScroll={updateArrows} className="mob-scroll" style={{ display: 'flex', gap: 10, overflowX: 'auto', margin: '0 -13px', padding: '0 13px 2px' }}>{kpiCards}</div>
+          <KpiChevron dir="left" show={canL} onClick={() => scrollKpis(-170)} />
+          <KpiChevron dir="right" show={canR} onClick={() => scrollKpis(170)} />
+        </div>
+      )}
 
       <div style={tablet ? { display: 'grid', gridTemplateColumns: '1.12fr 0.88fr', gap: 16, alignItems: 'start' } : { display: 'contents' }}>
       {/* Tracking card */}
